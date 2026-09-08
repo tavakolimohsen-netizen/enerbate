@@ -1,0 +1,212 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import { company, services, regions } from '../data/site';
+---
+
+<Base
+  title="Contact"
+  description={`Request a quote for energy modelling or compliance reporting. Call ${company.phone} or send your drawings and code path for a fixed price and delivery date.`}
+>
+  <PageHero
+    eyebrow="Contact"
+    title="Request a quote"
+    lede="The project type, the municipality and the code path you are filing under are usually enough for a firm price and a delivery date."
+    crumbs={[{ href: '/', label: 'Home' }]}
+  />
+
+  <section class="wrap grid gap-14 py-16 md:py-20 lg:grid-cols-[minmax(0,1fr)_20rem] lg:gap-16">
+    <div class="max-w-2xl">
+      <!-- Submits over fetch so the visitor stays on enerbate.ca instead of
+           being redirected to formspree.io. Without JavaScript the form still
+           posts normally to the same endpoint, so it never stops working. -->
+      <form
+        id="quoteForm"
+        action="https://formspree.io/f/xjyvaqek"
+        method="POST"
+        class="space-y-6"
+      >
+        <!-- Honeypot: real people never see or fill this. -->
+        <div class="absolute h-px w-px overflow-hidden" aria-hidden="true">
+          <label for="website">Leave this field empty</label>
+          <input id="website" name="_gotcha" type="text" tabindex="-1" autocomplete="off" />
+        </div>
+        <div class="grid gap-6 sm:grid-cols-2">
+          <div>
+            <label for="name" class="block text-sm font-semibold text-navy-800">
+              Your name
+            </label>
+            <input
+              id="name" name="name" type="text" required autocomplete="name"
+              class="mt-2 h-11 w-full rounded-lg border border-navy-200 px-3.5 text-[0.9375rem] focus:border-teal-600"
+            />
+          </div>
+          <div>
+            <label for="companyName" class="block text-sm font-semibold text-navy-800">
+              Company
+            </label>
+            <input
+              id="companyName" name="company" type="text" autocomplete="organization"
+              class="mt-2 h-11 w-full rounded-lg border border-navy-200 px-3.5 text-[0.9375rem] focus:border-teal-600"
+            />
+          </div>
+        </div>
+
+        <div class="grid gap-6 sm:grid-cols-2">
+          <div>
+            <label for="email" class="block text-sm font-semibold text-navy-800">
+              Email
+            </label>
+            <input
+              id="email" name="email" type="email" required autocomplete="email"
+              class="mt-2 h-11 w-full rounded-lg border border-navy-200 px-3.5 text-[0.9375rem] focus:border-teal-600"
+            />
+          </div>
+          <div>
+            <label for="phone" class="block text-sm font-semibold text-navy-800">
+              Phone <span class="font-normal text-body">(optional)</span>
+            </label>
+            <input
+              id="phone" name="phone" type="tel" autocomplete="tel"
+              class="mt-2 h-11 w-full rounded-lg border border-navy-200 px-3.5 text-[0.9375rem] focus:border-teal-600"
+            />
+          </div>
+        </div>
+
+        <div class="grid gap-6 sm:grid-cols-2">
+          <div>
+            <label for="service" class="block text-sm font-semibold text-navy-800">
+              What do you need?
+            </label>
+            <select
+              id="service" name="service"
+              class="mt-2 h-11 w-full rounded-lg border border-navy-200 bg-white px-3 text-[0.9375rem] focus:border-teal-600"
+            >
+              <option value="">Select a service</option>
+              {services.map((s) => <option value={s.title}>{s.title}</option>)}
+              <option value="Not sure yet">Not sure yet</option>
+            </select>
+          </div>
+          <div>
+            <label for="region" class="block text-sm font-semibold text-navy-800">
+              Province
+            </label>
+            <select
+              id="region" name="region"
+              class="mt-2 h-11 w-full rounded-lg border border-navy-200 bg-white px-3 text-[0.9375rem] focus:border-teal-600"
+            >
+              <option value="">Select a province</option>
+              {regions.map((r) => <option value={r.name}>{r.name}</option>)}
+              <option value="Other">Elsewhere in Canada</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label for="message" class="block text-sm font-semibold text-navy-800">
+            Project details
+          </label>
+          <p id="messageHelp" class="mt-1 text-sm text-body">
+            Building type, number of units, municipality, and the code path if you
+            already know it. Attach drawings by email if it is easier.
+          </p>
+          <textarea
+            id="message" name="message" rows="6" required aria-describedby="messageHelp"
+            class="mt-2 w-full rounded-lg border border-navy-200 p-3.5 text-[0.9375rem] focus:border-teal-600"
+          ></textarea>
+        </div>
+
+        <button id="quoteSubmit" type="submit" class="btn btn-primary w-full sm:w-auto">
+          Send request
+        </button>
+
+        <p id="formError" hidden role="alert"
+           class="rounded-lg border border-red-200 bg-red-50 p-4 text-[0.9375rem] text-red-800">
+          Something went wrong sending that. Please email{' '}
+          <a class="font-semibold underline" href={`mailto:${company.email}`}>{company.email}</a>{' '}
+          or call <a class="font-semibold underline" href={company.phoneHref}>{company.phone}</a>.
+        </p>
+      </form>
+
+      <div id="formSuccess" hidden tabindex="-1"
+           class="rounded-xl border border-teal-200 bg-teal-50 p-7">
+        <h2 class="text-xl">Request received</h2>
+        <p class="mt-3 text-[1.0625rem] leading-relaxed">
+          Thanks — we have your details and will come back with a price and a
+          delivery date, usually within one business day.
+        </p>
+        <p class="mt-3 text-[0.9375rem]">
+          If it is urgent, call{' '}
+          <a class="link-teal" href={company.phoneHref}>{company.phone}</a>.
+        </p>
+      </div>
+    </div>
+
+    <aside class="lg:sticky lg:top-24 lg:self-start">
+      <div class="card p-6">
+        <h2 class="text-base">Prefer to call or write?</h2>
+        <dl class="mt-4 space-y-4 text-[0.9375rem]">
+          <div>
+            <dt class="text-sm font-semibold uppercase tracking-wider text-body">Phone</dt>
+            <dd class="mt-1">
+              <a class="link-teal text-lg" href={company.phoneHref}>{company.phone}</a>
+            </dd>
+          </div>
+          <div>
+            <dt class="text-sm font-semibold uppercase tracking-wider text-body">Email</dt>
+            <dd class="mt-1">
+              <a class="link-teal" href={`mailto:${company.email}`}>{company.email}</a>
+            </dd>
+          </div>
+          <div>
+            <dt class="text-sm font-semibold uppercase tracking-wider text-body">
+              Turnaround
+            </dt>
+            <dd class="mt-1">{company.turnaround} for most standard projects.</dd>
+          </div>
+        </dl>
+      </div>
+    </aside>
+  </section>
+
+  <script>
+    const form = document.getElementById('quoteForm') as HTMLFormElement | null;
+    const btn = document.getElementById('quoteSubmit') as HTMLButtonElement | null;
+    const ok = document.getElementById('formSuccess');
+    const err = document.getElementById('formError');
+
+    form?.addEventListener('submit', async (e) => {
+      // If the endpoint has not been configured yet, let the browser do its
+      // normal thing rather than silently swallowing the submission.
+      if (form.action.includes('REPLACE_WITH')) return;
+
+      e.preventDefault();
+      if (err) err.hidden = true;
+      if (btn) {
+        btn.disabled = true;
+        btn.textContent = 'Sending…';
+      }
+
+      try {
+        const res = await fetch(form.action, {
+          method: 'POST',
+          body: new FormData(form),
+          headers: { Accept: 'application/json' },
+        });
+        if (!res.ok) throw new Error(String(res.status));
+        form.hidden = true;
+        if (ok) {
+          ok.hidden = false;
+          (ok as HTMLElement).focus();
+          ok.scrollIntoView({ block: 'center', behavior: 'smooth' });
+        }
+      } catch {
+        if (err) err.hidden = false;
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = 'Send request';
+        }
+      }
+    });
+  </script>
+</Base>

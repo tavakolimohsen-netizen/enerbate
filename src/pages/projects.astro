@@ -1,0 +1,109 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import { projects, company } from '../data/site';
+
+const portfolio = [
+  { figure: '76', label: 'Lake Country units', note: 'Highway 97 development' },
+  { figure: '40', label: 'Kelowna units', note: 'Multiple developments city-wide' },
+  { figure: '36', label: 'Rutland townhomes', note: 'Complete energy assessment' },
+  { figure: '40+', label: 'Lower Mainland units', note: 'Surrey, Richmond and Vancouver' },
+  { figure: '25+', label: 'Kelowna Part 3 units', note: 'Across multiple blocks' },
+  { figure: '15+', label: 'Burnaby / North Vancouver', note: 'Full modelling reports' },
+];
+---
+
+<Base
+  title="Projects"
+  description="Selected energy modelling and audit projects across British Columbia — Part 3 institutional and multi-family buildings, existing-building audits and Part 9 volume work."
+>
+  <PageHero
+    eyebrow="Selected work"
+    title="Projects we have modelled"
+    lede="Part 3 and Part 9 work across British Columbia and Québec, modelled in eQUEST and IES VE."
+    crumbs={[{ href: '/', label: 'Home' }]}
+  />
+
+  <section class="wrap py-16 md:py-20">
+    <ul class="space-y-16">
+      {
+        projects.map((p, i) => (
+          <li id={p.slug} class="scroll-mt-24">
+            <div class="grid gap-8 lg:grid-cols-2 lg:items-center lg:gap-14">
+              <div class:list={[i % 2 === 1 && 'lg:order-2']}>
+                <p class="eyebrow">{p.type}</p>
+                <h2 class="mt-3 text-2xl md:text-3xl">{p.name}</h2>
+                <p class="mt-2 text-body">{p.location}</p>
+                <p class="mt-5 text-[1.0625rem] leading-relaxed">{p.blurb}</p>
+                <h3 class="mt-7 text-sm font-semibold uppercase tracking-wider text-body">
+                  Scope
+                </h3>
+                <ul class="mt-3 flex flex-wrap gap-2">
+                  {p.scope.map((s) => (
+                    <li class="rounded-full border border-navy-200 px-3 py-1 text-sm font-medium text-navy-700">
+                      {s}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <div class="grid gap-4" style={`grid-template-columns: repeat(${Math.min(p.images.length, 2)}, minmax(0, 1fr));`}>
+                {p.images.map((img) => (
+                  <figure class="overflow-hidden rounded-lg border border-line bg-surface">
+                    <img
+                      src={img.src}
+                      alt={img.alt}
+                      loading="lazy"
+                      decoding="async"
+                      class="h-full w-full object-contain p-3"
+                    />
+                  </figure>
+                ))}
+              </div>
+            </div>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  <section class="border-y border-line bg-surface py-16 md:py-20">
+    <div class="wrap">
+      <h2 class="max-w-2xl text-3xl">Portfolio at a glance</h2>
+      <p class="mt-4 max-w-2xl text-lg">
+        Consolidated reporting and Part 3 modelling volume across British Columbia.
+      </p>
+      <dl class="mt-10 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+        {
+          portfolio.map((s) => (
+            <div class="border-l-2 border-teal-600 pl-5">
+              <dt class="sr-only">{s.label}</dt>
+              <dd>
+                <span class="block text-3xl font-extrabold text-navy-800">
+                  {s.figure}
+                </span>
+                <span class="mt-1 block font-semibold text-navy-700">{s.label}</span>
+                <span class="mt-0.5 block text-sm text-body">{s.note}</span>
+              </dd>
+            </div>
+          ))
+        }
+      </dl>
+      <p class="mt-10 max-w-2xl">
+        Part 9 modelling volume is concentrated in Québec — Delson, Montréal,
+        Gatineau, Québec City and other centres.
+      </p>
+    </div>
+  </section>
+
+  <section class="wrap py-16 text-center">
+    <h2 class="text-2xl">Working on something similar?</h2>
+    <p class="mx-auto mt-3 max-w-xl text-lg">
+      Send the drawings and the code path, and we will come back with a price and a date.
+    </p>
+    <div class="mt-8 flex flex-wrap justify-center gap-3">
+      <a href="/contact/" class="btn btn-primary">Request a quote</a>
+      <a href={company.phoneHref} class="btn btn-ghost">Call {company.phone}</a>
+    </div>
+  </section>
+</Base>

@@ -1,0 +1,81 @@
+---
+import { company, services, regions } from '../data/site';
+const year = new Date().getFullYear();
+---
+
+<footer class="mt-24 bg-navy-800 text-navy-200">
+  <div class="wrap grid gap-10 py-14 md:grid-cols-2 lg:grid-cols-4">
+    <div class="lg:col-span-1">
+      <img
+        src="/images/enerbate-logo-light.svg"
+        alt={company.name}
+        width="197"
+        height="60"
+        class="h-10 w-auto"
+      />
+      <p class="mt-4 max-w-xs text-sm leading-relaxed">{company.tagline}</p>
+      <div class="mt-5 space-y-1 text-sm">
+        <p>
+          <a class="font-semibold text-white hover:underline" href={company.phoneHref}>
+            {company.phone}
+          </a>
+        </p>
+        <p>
+          <a class="hover:text-white hover:underline" href={`mailto:${company.email}`}>
+            {company.email}
+          </a>
+        </p>
+      </div>
+      <address class="mt-4 text-sm not-italic leading-relaxed">
+        {company.address.line1}<br />
+        {company.address.city}, {company.address.region} {company.address.postalCode}
+      </address>
+    </div>
+
+    <nav aria-label="Services">
+      <h2 class="text-sm font-semibold uppercase tracking-wider text-white">Services</h2>
+      <ul class="mt-4 space-y-2.5 text-sm">
+        {
+          services.map((s) => (
+            <li>
+              <a class="hover:text-white hover:underline" href={`/services/${s.slug}/`}>
+                {s.title}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <nav aria-label="Regions">
+      <h2 class="text-sm font-semibold uppercase tracking-wider text-white">Where we work</h2>
+      <ul class="mt-4 space-y-2.5 text-sm">
+        {
+          regions.map((r) => (
+            <li>
+              <a class="hover:text-white hover:underline" href={`/regions/${r.slug}/`}>
+                {r.name}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <nav aria-label="Company">
+      <h2 class="text-sm font-semibold uppercase tracking-wider text-white">Company</h2>
+      <ul class="mt-4 space-y-2.5 text-sm">
+        <li><a class="hover:text-white hover:underline" href="/projects/">Projects</a></li>
+        <li><a class="hover:text-white hover:underline" href="/about/">About</a></li>
+        <li><a class="hover:text-white hover:underline" href="/contact/">Contact</a></li>
+      </ul>
+    </nav>
+  </div>
+
+  <div class="border-t border-white/10">
+    <div class="wrap flex flex-col gap-2 py-6 text-sm md:flex-row md:items-center md:justify-between">
+      <p>&copy; {year} {company.name} All rights reserved.</p>
+      <p>Energy modelling and compliance reporting across Canada.</p>
+    </div>
+  </div>
+</footer>

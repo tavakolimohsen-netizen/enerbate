@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://enerbate.ca/sitemap-index.xml

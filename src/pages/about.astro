@@ -1,0 +1,103 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import { company, differentiators } from '../data/site';
+
+const tools = [
+  { name: 'eQUEST v3.65', note: 'DOE-2.2 hourly simulation' },
+  { name: 'HAP v6.4', note: '3D load calculation and system sizing' },
+  { name: 'IES VE', note: 'Part 3 modelling where the path requires it' },
+  { name: 'CWEC 2016', note: 'Canadian weather files, plus 2050 scenarios' },
+  { name: 'ASHRAE Guideline 14', note: 'Calibration to ±1.7%' },
+  { name: 'IPMVP Option C', note: 'Measurement and verification' },
+];
+---
+
+<Base
+  title="About"
+  description="EnerBate Solutions Inc. is a Canadian energy modelling practice producing compliance reports, audits and design-load calculations for building professionals."
+>
+  <PageHero
+    eyebrow="About"
+    title="A modelling practice, not a general consultancy"
+    lede="EnerBate produces energy models and the reports that come out of them. That narrow focus is the reason the turnaround is short and the price is reasonable."
+    crumbs={[{ href: '/', label: 'Home' }]}
+  />
+
+  <section class="wrap grid gap-14 py-16 md:py-20 lg:grid-cols-[minmax(0,1fr)_20rem] lg:gap-16">
+    <div class="prose-b max-w-2xl text-[1.0625rem] leading-relaxed">
+      <p class="text-xl leading-relaxed text-navy-700">
+        Most delays on an energy submission are not modelling problems. They are
+        the wrong reference path, an assumption nobody wrote down, or a figure in
+        the application that does not match the figure in the report.
+      </p>
+      <p>
+        We work the other way around. The code path is confirmed before the model
+        is started, the assumptions are stated in the report itself, and the
+        rebate application is prepared from the same numbers as the compliance
+        package. That is what makes a review a question rather than a
+        resubmission.
+      </p>
+
+      <h2 class="mt-10 text-2xl">Who we work with</h2>
+      <p>
+        Architects, mechanical engineers, developers and builders across British
+        Columbia, Ontario and Québec. Some clients come to us for a single Part 9
+        house; others send repeat house types at volume, or a full Part 3
+        multi-family building with a Step Code report attached to the permit
+        application.
+      </p>
+
+      <h2 class="mt-10 text-2xl">How a project usually runs</h2>
+      <ol class="mt-4 space-y-4">
+        <li class="flex gap-4">
+          <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-teal-600 text-sm font-bold text-white">1</span>
+          <span><strong class="text-navy-800">Scope and path.</strong> You send drawings and the municipality. We confirm the code path and quote a fixed price and date.</span>
+        </li>
+        <li class="flex gap-4">
+          <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-teal-600 text-sm font-bold text-white">2</span>
+          <span><strong class="text-navy-800">Model build.</strong> Geometry, zoning and systems are built from the drawing set, not estimated from areas.</span>
+        </li>
+        <li class="flex gap-4">
+          <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-teal-600 text-sm font-bold text-white">3</span>
+          <span><strong class="text-navy-800">Results review.</strong> If the building does not pass, you hear it before the report is written, with the options that would close the gap.</span>
+        </li>
+        <li class="flex gap-4">
+          <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-teal-600 text-sm font-bold text-white">4</span>
+          <span><strong class="text-navy-800">Report and submission.</strong> Compliance package, application forms and supporting appendices, delivered together.</span>
+        </li>
+      </ol>
+
+      <h2 class="mt-10 text-2xl">Why clients stay</h2>
+      <ul class="mt-4 space-y-4">
+        {
+          differentiators.map((d) => (
+            <li>
+              <strong class="text-navy-800">{d.title}.</strong> {d.body}
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+
+    <aside class="lg:sticky lg:top-24 lg:self-start">
+      <div class="card p-6">
+        <h2 class="text-base">Tools and standards</h2>
+        <dl class="mt-4 space-y-3.5">
+          {
+            tools.map((t) => (
+              <div>
+                <dt class="text-[0.9375rem] font-semibold text-navy-800">{t.name}</dt>
+                <dd class="text-sm text-body">{t.note}</dd>
+              </div>
+            ))
+          }
+        </dl>
+        <a href="/contact/" class="btn btn-primary mt-6 w-full">Request a quote</a>
+        <p class="mt-3 text-center text-sm">
+          or call <a class="link-teal" href={company.phoneHref}>{company.phone}</a>
+        </p>
+      </div>
+    </aside>
+  </section>
+</Base>

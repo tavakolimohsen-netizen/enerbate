@@ -1,0 +1,39 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHero from '../../components/PageHero.astro';
+import { regions } from '../../data/site';
+---
+
+<Base
+  title="Where we work"
+  description="Energy modelling and compliance reporting across British Columbia, Ontario and Québec — Step Code, OBC SB-10, Toronto Green Standard and NBC Part 9."
+>
+  <PageHero
+    eyebrow="Where we work"
+    title="Three provinces, three sets of paths"
+    lede="The compliance path decides how the reference model is built. Getting that wrong at the start means building it twice, so we confirm it before any modelling begins."
+    crumbs={[{ href: '/', label: 'Home' }]}
+  />
+
+  <section class="wrap py-16 md:py-20">
+    <ul class="grid gap-6 md:grid-cols-3">
+      {
+        regions.map((r) => (
+          <li class="card group relative flex flex-col p-7">
+            <h2 class="text-xl">
+              <a href={`/regions/${r.slug}/`} class="after:absolute after:inset-0">
+                {r.name}
+              </a>
+            </h2>
+            <p class="mt-3 flex-1 leading-relaxed">{r.short}</p>
+            <ul class="mt-5 space-y-1.5 text-sm text-body">
+              {r.codes.map((c) => (
+                <li>{c.name}</li>
+              ))}
+            </ul>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+</Base>
