@@ -33,9 +33,10 @@ const codeBadges = [
 >
   <!-- ================= HERO ================= -->
   <section class="relative isolate overflow-hidden bg-navy-800">
-    <!-- Hero video. Desktop only: on a phone this is replaced by the
-         gradient below, which saves the visitor a large download and
-         sidesteps iOS autoplay behaviour. -->
+    <!-- Hero media. The poster paints first at every width; the video sits
+         on top of it and fades in once it can actually play. If the browser
+         refuses to autoplay, or the visitor is on a metered/slow connection,
+         or asks for reduced motion, the poster simply stays. -->
     <img
       src="/images/hero-poster.webp"
       alt=""
@@ -46,28 +47,22 @@ const codeBadges = [
 
     <video
       data-hero
-      class="absolute inset-0 hidden h-full w-full object-cover opacity-[0.55] md:block"
+      class="absolute inset-0 h-full w-full object-cover opacity-[0.55]"
       poster="/images/hero-poster.webp"
       autoplay
       muted
       loop
       playsinline
-      preload="metadata"
+      preload="auto"
       aria-hidden="true"
       tabindex="-1"
     >
+      <!-- VP9 first: 322 KB vs 518 KB. Safari and older Android take the mp4. -->
+      <source src="/videos/hero.webm" type="video/webm" />
       <source src="/videos/hero.mp4" type="video/mp4" />
     </video>
 
-    <div
-      class="absolute inset-0"
-      style="background:
-        linear-gradient(100deg, rgba(22,35,61,0.94) 0%, rgba(22,35,61,0.88) 38%, rgba(32,52,89,0.58) 100%),
-        radial-gradient(120% 90% at 14% 14%, rgba(9,118,138,0.45), transparent 60%),
-        radial-gradient(90% 80% at 90% 90%, rgba(151,208,153,0.16), transparent 58%);"
-      aria-hidden="true"
-    >
-    </div>
+    <div class="hero-veil absolute inset-0" aria-hidden="true"></div>
 
     <div class="wrap relative py-20 md:py-28 lg:py-32">
       <div class="max-w-3xl">
@@ -313,4 +308,30 @@ const codeBadges = [
       </div>
     </div>
   </section>
+
+  <script>
+    // Mobile browsers do not reliably start an autoplaying video on their own,
+    // and some refuse outright. Ask once, retry when the data arrives, and fall
+    // back to the poster underneath without complaining.
+    const hero = document.querySelector('video[data-hero]') as HTMLVideoElement | null;
+
+    if (hero) {
+      const conn = (navigator as any).connection;
+      const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const thin = conn?.saveData === true || /(^|-)2g$/.test(conn?.effectiveType ?? '');
+
+      if (reduced || thin) {
+        // Never fetch it at all — the poster is already on screen.
+        hero.remove();
+      } else {
+        const nudge = () => hero.play().catch(() => {});
+        nudge();
+        hero.addEventListener('loadeddata', nudge, { once: true });
+        hero.addEventListener('canplay', nudge, { once: true });
+        document.addEventListener('visibilitychange', () => {
+          if (!document.hidden) nudge();
+        });
+      }
+    }
+  </script>
 </Base>

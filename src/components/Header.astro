@@ -55,7 +55,10 @@ const nav = [
       >
         {company.phone}
       </a>
-      <a href="/contact/" class="btn btn-primary">Request a quote</a>
+      <a href="/contact/" class="btn btn-primary whitespace-nowrap">
+        <span class="sm:hidden">Get a quote</span>
+        <span class="hidden sm:inline">Request a quote</span>
+      </a>
       <button
         type="button"
         id="navToggle"

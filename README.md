@@ -84,14 +84,27 @@ raster with a solid white background.
    that ceiling once outreach starts.
 2. **Email address.** `site.ts` uses `energy@enerbate.ca`. Set up the mailbox
    before publishing, or the form's reply-to goes nowhere.
-3. **Hero video — done.** `public/videos/hero.mp4` (506 KB, 8.5 s, silent,
-   1280x720) loops seamlessly: the last 1.5 s crossfades back onto the opening
-   frame, so there is no visible cut at the wrap. `public/images/hero-poster.webp`
-   paints first and is the only thing mobile loads — the video is hidden below
-   `md` to save data and avoid iOS autoplay behaviour. Under
-   `prefers-reduced-motion` the video is hidden everywhere and the poster stands
-   in. A second clip, `public/videos/thermal.mp4` (194 KB), is prepared the same
-   way and not yet placed.
+3. **Hero video — done.** 8.5 s, silent, 1280x720, looping seamlessly: the
+   last 1.5 s crossfades back onto the opening frame, so there is no visible cut
+   at the wrap. Shipped in two encodes — `hero.webm` (VP9, 322 KB) is offered
+   first and taken by Chrome, Edge, Firefox and Android; `hero.mp4` (H.264,
+   506 KB) is the fallback Safari and older Android use.
+
+   It plays at **every width, phones included**. `hero-poster.webp` sits
+   underneath as the first paint and as the permanent fallback, so nothing is
+   ever blank. An inline script in `index.astro` calls `play()` and retries on
+   `loadeddata`/`canplay`, because mobile browsers do not always start an
+   autoplaying video on their own; if the browser still refuses, the poster
+   simply stays. That same script removes the `<video>` element outright — so it
+   is never downloaded — when the visitor has Data Saver on, is on a 2G
+   connection, or asks for `prefers-reduced-motion`.
+
+   The veil over the video is `.hero-veil` in `global.css`, not an inline
+   style: left-to-right on desktop where the copy sits on the left, and
+   top-to-bottom below 768 px where the copy stacks and fills the frame.
+
+   A second clip, `thermal.mp4` / `thermal.webm` (194 KB / 73 KB), is prepared
+   the same way and not yet placed.
 
    Both clips were cropped before encoding to remove the generator's watermark,
    a 48x48 px mark measured at x 1136-1183, y 576-623 in the original 1280x720
