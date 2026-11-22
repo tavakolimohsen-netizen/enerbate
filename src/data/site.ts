@@ -12,7 +12,7 @@ export const company = {
   phone: '236-516-4668',
   phoneHref: 'tel:+12365164668',
   email: 'energy@enerbate.ca',
-  turnaround: '5–10 business days',
+  turnaround: '4 business days',
   address: {
     line1: '723 Grover Ave #415',
     city: 'Coquitlam',
@@ -381,3 +381,164 @@ export const projectTypes = [
   { name: 'Large multifamily', note: 'High-rise residential towers' },
   { name: 'Commercial and institutional', note: 'Offices, retail and public buildings' },
 ];
+
+/* ---------------------------------------------------------------------------
+   MLI Select — pre-check data
+   Used by /pre-check/. Kept here so the fee schedule and the programme
+   thresholds live in one place rather than inside page markup.
+--------------------------------------------------------------------------- */
+
+export type FeeSchedule = {
+  key: string;
+  /** Service name as it appears on the fee schedule. */
+  name: string;
+  /** One line on what the fee buys. */
+  blurb: string;
+  /** Flat fee applies up to this GFA, in ft². */
+  flatTo: number;
+  flatFee: number;
+  /** Marginal rate per ft² in each band above the flat band. */
+  bands: { upTo: number; perSqFt: number }[];
+  /** Decimal places the published schedule prints this service's rates to. */
+  rateDecimals: number;
+  /** Everything the fee includes. Taken from the fee schedule's scope notes. */
+  scope: string[];
+};
+
+/**
+ * EnerBate's published fee schedule, by gross floor area.
+ *
+ * Rates are marginal: the flat fee covers the first band, then each further
+ * band is charged only on the portion of the GFA that falls inside it. GFA is
+ * the total floor area on the architect's area schedule. Prices are CAD and
+ * exclude taxes; one revision is included.
+ */
+export const feeSchedules: FeeSchedule[] = [
+  {
+    key: 'sb10',
+    name: 'OBC SB-10',
+    blurb: 'Ontario Building Code supplementary standard SB-10 compliance.',
+    flatTo: 10_000,
+    flatFee: 900,
+    rateDecimals: 4,
+    bands: [
+      { upTo: 30_000, perSqFt: 0.0405 },
+      { upTo: 75_000, perSqFt: 0.0306 },
+      { upTo: 150_000, perSqFt: 0.0270 },
+      { upTo: Infinity, perSqFt: 0.0234 },
+    ],
+    scope: [
+      'Reference and proposed energy models',
+      'Compliance report',
+      'Completion of the OBC SB-10 compliance forms',
+    ],
+  },
+  {
+    key: 'tgs',
+    name: 'Toronto Green Standard V4',
+    blurb: 'City of Toronto TGS Version 4 energy submission.',
+    flatTo: 10_000,
+    flatFee: 1_000,
+    rateDecimals: 3,
+    bands: [
+      { upTo: 30_000, perSqFt: 0.045 },
+      { upTo: 75_000, perSqFt: 0.034 },
+      { upTo: 150_000, perSqFt: 0.030 },
+      { upTo: Infinity, perSqFt: 0.026 },
+    ],
+    scope: [
+      'Energy model with TEUI, TEDI and GHGI results',
+      'Thermal bridging analysis',
+      'TGS V4 Energy Efficiency Reporting Workbook',
+      'Energy Report and Mechanical & Electrical Design Brief',
+    ],
+  },
+  {
+    key: 'mli',
+    name: 'CMHC MLI Select',
+    blurb: 'Energy points evidence for a CMHC MLI Select application.',
+    flatTo: 10_000,
+    flatFee: 700,
+    rateDecimals: 4,
+    bands: [
+      { upTo: 30_000, perSqFt: 0.0315 },
+      { upTo: 75_000, perSqFt: 0.0238 },
+      { upTo: 150_000, perSqFt: 0.0210 },
+      { upTo: Infinity, perSqFt: 0.0182 },
+    ],
+    scope: [
+      'Reference and proposed energy models — NECB 2020 for Part 3, NBC 2020 Section 9.36 for Part 9 low-rise',
+      'Property Energy Analysis (PEA) report',
+      'Support completing the CMHC attestation form',
+    ],
+  },
+];
+
+/** Conditions that apply to every line on the fee schedule. */
+export const feeTerms = [
+  'GFA is the total floor area stated on the architect\u2019s area schedule.',
+  'Rates are marginal — each rate applies only to the portion of the GFA inside its band.',
+  'Projects up to 10,000 ft² are charged the flat fee for that service.',
+  'All reports are reviewed, approved and signed by a Certified Energy Manager (CEM). A Professional Engineer\u2019s review or seal is not included.',
+  'One revision after the initial issue is included. Further revisions are charged on time.',
+  'Prices are in Canadian dollars. GST/HST, and QST where applicable, are added at the rate for the project\u2019s province.',
+];
+
+/** Worked examples, so a reader can sanity-check the bands without a calculator. */
+export const feeExamples = [5_000, 15_000, 25_000, 38_750, 60_000, 120_000, 200_000];
+
+export function feeFor(schedule: FeeSchedule, gfa: number): number {
+  if (!gfa || gfa <= schedule.flatTo) return schedule.flatFee;
+  let fee = schedule.flatFee;
+  let lower = schedule.flatTo;
+  for (const band of schedule.bands) {
+    if (gfa <= lower) break;
+    fee += (Math.min(gfa, band.upTo) - lower) * band.perSqFt;
+    lower = band.upTo;
+  }
+  return Math.round(fee);
+}
+
+/** The MLI Select line on its own — used by /pre-check/. */
+export const mliFeeSchedule = feeSchedules.find((s) => s.key === 'mli')!;
+export const mliFirstReportFree = true;
+
+export function mliFee(gfa: number): number {
+  return feeFor(mliFeeSchedule, gfa);
+}
+
+/**
+ * CMHC MLI Select energy-efficiency points for new construction, measured
+ * against the 2020 NECB (Part 3) or the 2020 NBC (Part 9). The 2020 editions
+ * replaced NECB 2017 / NBC 2015 as the reference on 30 September 2026.
+ *
+ * Thresholds are CMHC's, not ours — see the MLI Select programme page.
+ */
+export const mliEnergyTiers = {
+  necb: [
+    { points: 50, minImprovement: 60 },
+    { points: 35, minImprovement: 50 },
+    { points: 20, minImprovement: 25 },
+  ],
+  nbc: [
+    { points: 50, minImprovement: 70 },
+    { points: 35, minImprovement: 40 },
+    { points: 20, minImprovement: 20 },
+  ],
+} as const;
+
+/** Existing properties are scored against current performance instead. */
+export const mliExistingTiers = [
+  { points: 50, minImprovement: 40 },
+  { points: 35, minImprovement: 25 },
+  { points: 20, minImprovement: 15 },
+] as const;
+
+/** CMHC's eligibility floor. Retirement homes are the exception, at 50. */
+export const mliMinUnits = 5;
+
+export const mliReferenceCodeChange = {
+  date: '30 September 2026',
+  from: 'NBC 2015 / NECB 2017',
+  to: 'NBC 2020 / NECB 2020',
+} as const;
