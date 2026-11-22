@@ -111,9 +111,10 @@ raster with a solid white background.
    frame. The crop takes 160 px off the right edge (16 px clear of the mark) and
    90 px of height to restore 16:9, then rescales to 1280x720. Re-cutting from
    fresh source footage means repeating that crop.
-4. **The "150+ units" figure** on the homepage is carried over from the deck and
-   appears to understate the portfolio. Confirm it before launch — the projects
-   page alone lists more than that.
+4. **The "300+ reports" figure** on the homepage is the confirmed count of
+   completed MLI Select and building-permit energy reports, all approved. It
+   replaced an earlier "150+ units modelled" figure carried over from the deck,
+   which understated the portfolio and measured a different thing.
 
 ---
 
