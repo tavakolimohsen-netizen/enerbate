@@ -1,0 +1,237 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import { company, feeSchedules, feeTerms, feeExamples, feeFor } from '../data/site';
+
+const money = (n: number) => '$' + n.toLocaleString('en-CA');
+const sqft = (n: number) => n.toLocaleString('en-CA');
+const rate = (n: number, dp: number) => '$' + n.toFixed(dp) + '/ft²';
+
+/** Band labels are the same for every service, so build them once. */
+const first = feeSchedules[0];
+const bandLabels = [
+  `First ${sqft(first.flatTo)}`,
+  ...first.bands.map((b, i) => {
+    const lower = i === 0 ? first.flatTo : first.bands[i - 1].upTo;
+    return Number.isFinite(b.upTo)
+      ? `${sqft(lower)} – ${sqft(b.upTo)}`
+      : `Over ${sqft(lower)}`;
+  }),
+];
+---
+
+<Base
+  title="Pricing"
+  description="EnerBate's published fee schedule for OBC SB-10, Toronto Green Standard V4 and CMHC MLI Select energy reports. Priced per square foot of gross floor area, with worked examples."
+>
+  <PageHero
+    eyebrow="Fee schedule"
+    title="What an energy report costs, before you ask"
+    lede="Fees are set by the project's gross floor area rather than an hourly rate, which is what makes small Part 9 work viable. The whole schedule is below — no quote required to see it."
+    crumbs={[{ href: '/', label: 'Home' }]}
+  />
+
+  <!-- ================= CALCULATOR ================= -->
+  <section class="wrap py-12 md:py-16" aria-labelledby="calc-h">
+    <div class="card p-6 md:p-8">
+      <h2 id="calc-h" class="text-2xl">Estimate your fee</h2>
+      <p class="mt-2 max-w-2xl text-[0.9375rem]">
+        Enter the gross floor area from your architect's area schedule. The figures update
+        as you type — they are the same numbers as the table below, just worked out for you.
+      </p>
+
+      <div class="mt-6 max-w-sm">
+        <label for="gfaInput" class="block text-sm font-semibold text-navy-800">
+          Gross floor area (ft²)
+        </label>
+        <input
+          id="gfaInput" type="number" inputmode="numeric" min="0" step="500" value="25000"
+          class="mt-2 h-12 w-full rounded-lg border border-navy-200 px-3.5 text-lg focus:border-teal-600"
+        />
+      </div>
+
+      <ul class="mt-7 grid gap-4 md:grid-cols-3" id="calcOut">
+        {
+          feeSchedules.map((s) => (
+            <li class="rounded-xl border border-line bg-surface p-5">
+              <p class="text-xs font-semibold uppercase tracking-wider text-teal-600">{s.name}</p>
+              <p class="mt-2 text-3xl font-extrabold text-navy-800" data-fee={s.key}>
+                {money(feeFor(s, 25000))}
+              </p>
+              <p class="mt-1.5 text-sm text-body">{s.blurb}</p>
+            </li>
+          ))
+        }
+      </ul>
+      <p class="mt-4 text-sm text-body">
+        CAD, taxes extra, one revision included. Final fee is confirmed once we have seen
+        the drawings.
+      </p>
+    </div>
+  </section>
+
+  <!-- ================= RATES ================= -->
+  <section class="wrap pb-4" aria-labelledby="rates-h">
+    <h2 id="rates-h" class="text-2xl md:text-3xl">Rates per ft² of GFA</h2>
+    <div
+      class="mt-6 overflow-x-auto" tabindex="0" role="region"
+      aria-label="Rates per square foot of gross floor area"
+    >
+      <table class="w-full min-w-[34rem] border-collapse text-left text-[0.9375rem]">
+        <thead>
+          <tr class="border-b-2 border-navy-200">
+            <th scope="col" class="py-3 pr-4 font-semibold text-navy-800">GFA band (ft²)</th>
+            {feeSchedules.map((s) => (
+              <th scope="col" class="py-3 pr-4 font-semibold text-navy-800">{s.name}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {
+            bandLabels.map((label, row) => (
+              <tr class="border-b border-line">
+                <th scope="row" class="py-3 pr-4 font-semibold text-navy-700">{label}</th>
+                {feeSchedules.map((s) => (
+                  <td class="py-3 pr-4">
+                    {row === 0 ? `${money(s.flatFee)} flat` : rate(s.bands[row - 1].perSqFt, s.rateDecimals)}
+                  </td>
+                ))}
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ================= EXAMPLES ================= -->
+  <section class="wrap py-12 md:py-16" aria-labelledby="ex-h">
+    <h2 id="ex-h" class="text-2xl md:text-3xl">Worked examples</h2>
+    <p class="mt-2 max-w-2xl text-[0.9375rem]">
+      The same bands, applied. Use these to check the calculator against your own numbers.
+    </p>
+    <div
+      class="mt-6 overflow-x-auto" tabindex="0" role="region"
+      aria-label="Worked fee examples by gross floor area"
+    >
+      <table class="w-full min-w-[34rem] border-collapse text-left text-[0.9375rem]">
+        <thead>
+          <tr class="border-b-2 border-navy-200">
+            <th scope="col" class="py-3 pr-4 font-semibold text-navy-800">Gross floor area</th>
+            {feeSchedules.map((s) => (
+              <th scope="col" class="py-3 pr-4 font-semibold text-navy-800">{s.name}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {
+            feeExamples.map((gfa) => (
+              <tr class="border-b border-line">
+                <th scope="row" class="py-3 pr-4 font-semibold text-navy-700">{sqft(gfa)} ft²</th>
+                {feeSchedules.map((s) => <td class="py-3 pr-4">{money(feeFor(s, gfa))}</td>)}
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ================= SCOPE ================= -->
+  <section class="border-y border-line bg-surface py-12 md:py-16" aria-labelledby="scope-h">
+    <div class="wrap">
+      <h2 id="scope-h" class="text-2xl md:text-3xl">What each fee covers</h2>
+      <ul class="mt-8 grid gap-5 md:grid-cols-3">
+        {
+          feeSchedules.map((s) => (
+            <li class="card p-6">
+              <h3 class="text-lg">{s.name}</h3>
+              <ul class="mt-3 grid gap-2 text-[0.9375rem]">
+                {s.scope.map((item) => (
+                  <li class="flex gap-2.5">
+                    <svg
+                      width="18" height="18" viewBox="0 0 24 24" fill="none"
+                      stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                      stroke-linejoin="round" aria-hidden="true"
+                      class="mt-1 shrink-0 text-teal-600"
+                    >
+                      <path d="M20 6 9 17l-5-5" />
+                    </svg>
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <!-- ================= TERMS ================= -->
+  <section class="wrap py-12 md:py-16" aria-labelledby="terms-h">
+    <div class="grid gap-10 lg:grid-cols-[minmax(0,1fr)_20rem] lg:gap-16">
+      <div class="min-w-0">
+        <h2 id="terms-h" class="text-2xl md:text-3xl">The conditions, in full</h2>
+        <ul class="prose-b mt-5 max-w-2xl">
+          {feeTerms.map((t) => <li>{t}</li>)}
+        </ul>
+        <p class="mt-6 max-w-2xl text-[0.9375rem]">
+          Turnaround is {company.turnaround} for most standard projects. If your project
+          does not fit any line above — an audit, an overheating study, a portfolio — tell
+          us the scope and we will price it the same way, against the work it actually takes.
+        </p>
+      </div>
+
+      <aside class="lg:sticky lg:top-24 lg:self-start">
+        <div class="card p-6">
+          <h2 class="text-base">Not sure which one you need?</h2>
+          <p class="mt-3 text-[0.9375rem]">
+            Send the project type, the municipality and the code path you are filing under.
+            That is usually enough for a firm price and a delivery date.
+          </p>
+          <a href="/contact/" class="btn btn-primary mt-5 w-full">Request a quote</a>
+          <a href="/pre-check/" class="btn btn-ghost mt-3 w-full">MLI Select pre-check</a>
+          <dl class="mt-6 space-y-3 border-t border-line pt-5 text-[0.9375rem]">
+            <div>
+              <dt class="text-sm font-semibold uppercase tracking-wider text-body">Phone</dt>
+              <dd class="mt-1"><a class="link-teal text-lg" href={company.phoneHref}>{company.phone}</a></dd>
+            </div>
+            <div>
+              <dt class="text-sm font-semibold uppercase tracking-wider text-body">Email</dt>
+              <dd class="mt-1"><a class="link-teal" href={`mailto:${company.email}`}>{company.email}</a></dd>
+            </div>
+          </dl>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <script is:inline define:vars={{ SCHEDULES: feeSchedules }}>
+    var input = document.getElementById('gfaInput');
+
+    function feeFor(s, gfa) {
+      if (!gfa || gfa <= s.flatTo) return s.flatFee;
+      var fee = s.flatFee, lower = s.flatTo;
+      for (var i = 0; i < s.bands.length; i++) {
+        var upTo = s.bands[i].upTo === null ? Infinity : s.bands[i].upTo;
+        if (gfa <= lower) break;
+        fee += (Math.min(gfa, upTo) - lower) * s.bands[i].perSqFt;
+        lower = upTo;
+      }
+      return Math.round(fee);
+    }
+
+    function update() {
+      var gfa = parseFloat(input.value);
+      if (!isFinite(gfa) || gfa < 0) gfa = 0;
+      SCHEDULES.forEach(function (s) {
+        var el = document.querySelector('[data-fee="' + s.key + '"]');
+        if (el) el.textContent = '$' + feeFor(s, gfa).toLocaleString('en-CA');
+      });
+    }
+
+    input.addEventListener('input', update);
+    update();
+  </script>
+</Base>

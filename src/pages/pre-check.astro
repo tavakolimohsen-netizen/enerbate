@@ -1,0 +1,633 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import {
+  company,
+  mliFeeSchedule,
+  mliEnergyTiers,
+  mliExistingTiers,
+  mliMinUnits,
+  mliReferenceCodeChange,
+} from '../data/site';
+
+/* The threshold tables shown on the page and used by the script. One source:
+   src/data/site.ts. CMHC's numbers, not ours. */
+const PATHS = {
+  necb: {
+    label: 'New construction — Part 3 (NECB 2020)',
+    blurb: 'Mid- and high-rise. Energy points are measured against NECB 2020 Tier 1.',
+    basis: 'better than NECB 2020 Tier 1',
+    tiers: mliEnergyTiers.necb,
+  },
+  nbc: {
+    label: 'New construction — Part 9 (NBC 2020)',
+    blurb: 'Low-rise residential. Energy points are measured against NBC 2020 Tier 1.',
+    basis: 'better than NBC 2020 Tier 1',
+    tiers: mliEnergyTiers.nbc,
+  },
+  existing: {
+    label: 'Existing property — refinance or retrofit',
+    blurb: 'Scored on the reduction against the building’s current performance.',
+    basis: 'reduction against current performance',
+    tiers: mliExistingTiers,
+  },
+};
+---
+
+<Base
+  title="MLI Select energy pre-check"
+  description={`A short pre-check for Canadian multifamily developers: estimate the CMHC MLI Select energy points your project is on track for under the ${mliReferenceCodeChange.to} reference, and what it would take to reach the next tier.`}
+>
+  <PageHero
+    eyebrow="CMHC MLI Select"
+    title="How many MLI Select energy points is your project on track for?"
+    lede={`Seven questions, about two minutes. You get an estimate of the energy points your project would earn under the current ${mliReferenceCodeChange.to} reference, the gap to the next tier, and a fee estimate for the report that confirms it.`}
+    crumbs={[{ href: '/', label: 'Home' }]}
+  />
+
+  <section class="wrap py-12 md:py-16">
+    <div class="grid gap-10 lg:grid-cols-[minmax(0,1fr)_19rem] lg:gap-14">
+      <div class="min-w-0">
+        <!-- ============ QUIZ ============ -->
+        <div class="card overflow-hidden">
+          <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-b border-line px-6 py-4">
+            <h2 class="text-lg" id="panelTitle">Energy pre-check</h2>
+            <p class="text-sm text-body" id="stepLabel">Question 1 of 7</p>
+          </div>
+          <div class="h-1.5 bg-navy-50" aria-hidden="true">
+            <div class="h-full bg-teal-600 transition-[width] duration-300" id="progressBar" style="width:0%"></div>
+          </div>
+
+          <div class="p-6 md:p-8">
+            <!-- quiz view -->
+            <div id="quizView">
+              <h3 class="text-xl" id="qTitle"></h3>
+              <p class="mt-1.5 text-[0.9375rem]" id="qSub"></p>
+              <div class="mt-6 grid gap-3 sm:grid-cols-2" id="options" role="radiogroup" aria-labelledby="qTitle"></div>
+              <div class="mt-7 flex items-center justify-between gap-3">
+                <button type="button" class="btn btn-ghost" id="backBtn">&larr; Back</button>
+                <button type="button" class="btn btn-primary" id="nextBtn" disabled>Continue &rarr;</button>
+              </div>
+            </div>
+
+            <!-- result view -->
+            <div id="resultView" hidden tabindex="-1" class="scroll-mt-28">
+              <p class="eyebrow">Estimated result</p>
+              <div class="mt-3 flex flex-wrap items-end gap-x-5 gap-y-2">
+                <p class="text-5xl font-extrabold tracking-tight text-navy-800" id="pointsNum">—</p>
+                <p class="pb-1.5 text-lg font-semibold text-navy-700" id="pointsLabel"></p>
+              </div>
+              <p class="mt-3 max-w-2xl text-[1.0625rem] leading-relaxed" id="verdictSub"></p>
+
+              <div class="mt-7 overflow-x-auto" id="tierTableWrap" tabindex="0" role="region"
+                   aria-label="CMHC MLI Select energy point thresholds">
+                <table class="w-full min-w-[20rem] border-collapse text-left text-[0.9375rem]">
+                  <caption class="mb-2 text-left text-sm text-body" id="tierCaption"></caption>
+                  <thead>
+                    <tr class="border-b border-line">
+                      <th scope="col" class="py-2 pr-4 font-semibold text-navy-800">Energy points</th>
+                      <th scope="col" class="py-2 font-semibold text-navy-800">Required improvement</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tierRows"></tbody>
+                </table>
+              </div>
+
+              <ul class="mt-7 grid gap-3" id="flagList"></ul>
+
+              <div class="mt-8 rounded-xl border border-teal-200 bg-teal-50 p-6">
+                <h3 class="text-base">Your estimated report fee</h3>
+                <p class="mt-2 text-2xl font-extrabold text-navy-800" id="feeLine">—</p>
+                <p class="mt-2 text-[0.9375rem]" id="feeNote"></p>
+                <h4 class="mt-5 text-sm font-semibold uppercase tracking-wider text-body">
+                  What the fee covers
+                </h4>
+                <ul class="mt-2 grid gap-1.5 text-[0.9375rem]">
+                  <li>Reference and proposed energy models — NECB 2020 for Part 3, NBC 2020 Section 9.36 for Part 9 low-rise</li>
+                  <li>The Property Energy Analysis (PEA) report</li>
+                  <li>Support completing the CMHC attestation form</li>
+                  <li>One revision after the report is issued</li>
+                </ul>
+                <p class="mt-4 text-sm text-body">
+                  Reports are reviewed, approved and signed by a Certified Energy Manager
+                  (CEM). A Professional Engineer's review or seal is not included — if your
+                  lender or consultant requires a P.Eng seal, tell us early so we can plan
+                  for it. GST/HST (and QST where applicable) is added at your province's rate.
+                </p>
+              </div>
+
+              <div class="mt-6 flex flex-wrap gap-3">
+                <button type="button" class="btn btn-primary" id="toFormBtn">Start my free first report</button>
+                <button type="button" class="btn btn-ghost" id="copyBtn">Copy summary</button>
+                <button type="button" class="btn btn-ghost" id="restartBtn">&#8634; Start over</button>
+              </div>
+              <p class="mt-3 text-sm text-body" id="copiedMsg" hidden>Copied to your clipboard.</p>
+
+              <p class="mt-6 border-t border-line pt-5 text-sm text-body">
+                This is an estimate from your answers, not a determination. Energy points are
+                confirmed by the full model, and the MLI Select decision is CMHC's.{' '}
+                {company.shortName} is an independent energy modelling firm and is not
+                affiliated with CMHC.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- ============ LEAD FORM ============ -->
+        <div class="card mt-8 scroll-mt-28 p-6 md:p-8" id="leadCard" hidden>
+          <h2 class="text-xl">Start your free first report</h2>
+          <p class="mt-2 max-w-2xl text-[0.9375rem]">
+            Send us your answers and we'll come back with what the model would need to
+            confirm this estimate. The first MLI Select energy report is free — one per
+            company — so you can judge the work before paying for anything.
+          </p>
+
+          <form id="leadForm" action="https://formspree.io/f/xjyvaqek" method="POST" class="mt-6 space-y-5">
+            <div class="absolute h-px w-px overflow-hidden" aria-hidden="true">
+              <label for="website">Leave this field empty</label>
+              <input id="website" name="_gotcha" type="text" tabindex="-1" autocomplete="off" />
+            </div>
+            <input type="hidden" name="source" value="MLI Select pre-check" />
+            <input type="hidden" name="precheck_summary" id="summaryField" />
+
+            <div class="grid gap-5 sm:grid-cols-2">
+              <div>
+                <label for="pName" class="block text-sm font-semibold text-navy-800">Your name</label>
+                <input id="pName" name="name" type="text" required autocomplete="name"
+                  class="mt-2 h-11 w-full rounded-lg border border-navy-200 px-3.5 text-[0.9375rem] focus:border-teal-600" />
+              </div>
+              <div>
+                <label for="pCompany" class="block text-sm font-semibold text-navy-800">Company</label>
+                <input id="pCompany" name="company" type="text" autocomplete="organization"
+                  class="mt-2 h-11 w-full rounded-lg border border-navy-200 px-3.5 text-[0.9375rem] focus:border-teal-600" />
+              </div>
+              <div>
+                <label for="pEmail" class="block text-sm font-semibold text-navy-800">Email</label>
+                <input id="pEmail" name="email" type="email" required autocomplete="email"
+                  class="mt-2 h-11 w-full rounded-lg border border-navy-200 px-3.5 text-[0.9375rem] focus:border-teal-600" />
+              </div>
+              <div>
+                <label for="pCity" class="block text-sm font-semibold text-navy-800">
+                  Project city &amp; province <span class="font-normal text-body">(optional)</span>
+                </label>
+                <input id="pCity" name="city" type="text" placeholder="e.g. Surrey, BC"
+                  class="mt-2 h-11 w-full rounded-lg border border-navy-200 px-3.5 text-[0.9375rem] focus:border-teal-600" />
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-full sm:w-auto" id="leadSubmit">Send my pre-check</button>
+
+            <p id="leadError" hidden role="alert"
+               class="rounded-lg border border-red-200 bg-red-50 p-4 text-[0.9375rem] text-red-800">
+              Something went wrong sending that. Please email{' '}
+              <a class="font-semibold underline" href={`mailto:${company.email}`}>{company.email}</a>{' '}
+              or call <a class="font-semibold underline" href={company.phoneHref}>{company.phone}</a>.
+            </p>
+
+            <p class="text-sm text-body">
+              Submitting sends your answers and contact details to {company.name} so we can
+              reply about your result and your free first report. They go to our form
+              provider (Formspree) and into our own mailbox — nowhere else. No newsletter,
+              no list, and you can ask us to delete them at any time.
+            </p>
+          </form>
+
+          <div id="leadSuccess" hidden tabindex="-1" class="rounded-xl border border-teal-200 bg-teal-50 p-6">
+            <h3 class="text-lg">Got it — thank you</h3>
+            <p class="mt-2 text-[0.9375rem]">
+              Your pre-check is with us. We'll reply with what the model needs to confirm
+              it, usually within one business day. If it's urgent, call{' '}
+              <a class="link-teal" href={company.phoneHref}>{company.phone}</a>.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============ ASIDE ============ -->
+      <aside class="lg:sticky lg:top-24 lg:self-start">
+        <div class="card p-6">
+          <h2 class="text-base">What changed on {mliReferenceCodeChange.date}</h2>
+          <p class="mt-3 text-[0.9375rem]">
+            CMHC moved the energy reference for MLI Select from{' '}
+            <strong>{mliReferenceCodeChange.from}</strong> to{' '}
+            <strong>{mliReferenceCodeChange.to}</strong>. Points are now measured against the
+            2020 editions, so a model built against the older reference is answering a
+            different question than the one CMHC now asks.
+          </p>
+          <p class="mt-3 text-[0.9375rem]">
+            Whether a particular in-progress file has to be re-run is CMHC's call, not ours
+            — if you are in that position, ask your CMHC specialist before assuming either
+            way.
+          </p>
+          <hr class="my-5 border-line" />
+          <h3 class="text-base">Prefer to just ask?</h3>
+          <dl class="mt-3 space-y-3 text-[0.9375rem]">
+            <div>
+              <dt class="text-sm font-semibold uppercase tracking-wider text-body">Phone</dt>
+              <dd class="mt-1"><a class="link-teal text-lg" href={company.phoneHref}>{company.phone}</a></dd>
+            </div>
+            <div>
+              <dt class="text-sm font-semibold uppercase tracking-wider text-body">Email</dt>
+              <dd class="mt-1"><a class="link-teal" href={`mailto:${company.email}`}>{company.email}</a></dd>
+            </div>
+            <div>
+              <dt class="text-sm font-semibold uppercase tracking-wider text-body">Turnaround</dt>
+              <dd class="mt-1">{company.turnaround} for most standard projects.</dd>
+            </div>
+          </dl>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <script is:inline define:vars={{ PATHS, FEE: mliFeeSchedule, MIN_UNITS: mliMinUnits, CHANGE: mliReferenceCodeChange, TURNAROUND: company.turnaround }}>
+    /* ------------------------------------------------------------------
+       Question set. The improvement bands are generated per code path so
+       each option lands exactly on one of CMHC's own thresholds — a band
+       that straddles a threshold would make the estimate meaningless.
+       ------------------------------------------------------------------ */
+    function improvementOptions(pathKey) {
+      var p = PATHS[pathKey];
+      if (!p) {
+        return [
+          { v: 'unknown', label: "Not sure yet", small: 'We can work it out together' }
+        ];
+      }
+      var t = p.tiers.slice().sort(function (a, b) { return a.minImprovement - b.minImprovement; });
+      var opts = [
+        { v: 'below', label: 'Under ' + t[0].minImprovement + '%', small: 'Below the first points threshold', points: 0 }
+      ];
+      for (var i = 0; i < t.length; i++) {
+        var lo = t[i].minImprovement;
+        var hi = t[i + 1] ? t[i + 1].minImprovement - 1 : null;
+        opts.push({
+          v: 'tier' + t[i].points,
+          label: hi ? lo + '–' + hi + '%' : lo + '% or more',
+          small: t[i].points + ' energy points',
+          points: t[i].points
+        });
+      }
+      opts.push({ v: 'unknown', label: "Don't know yet", small: 'No target set, or not modelled', points: null });
+      return opts;
+    }
+
+    var QUESTIONS = [
+      {
+        key: 'path',
+        title: 'Which MLI Select file is this?',
+        sub: 'This decides which reference the energy points are measured against — and the thresholds are different for each.',
+        options: [
+          { v: 'necb', label: 'New build — Part 3', small: 'Mid/high-rise · NECB 2020' },
+          { v: 'nbc', label: 'New build — Part 9', small: 'Low-rise residential · NBC 2020' },
+          { v: 'existing', label: 'Existing property', small: 'Refinance or retrofit' },
+          { v: 'unsure', label: 'Not sure', small: "We'll confirm it before any modelling" }
+        ]
+      },
+      {
+        key: 'units',
+        title: 'How many residential units?',
+        sub: 'CMHC requires a minimum of ' + MIN_UNITS + ' units (retirement homes are the exception, at 50).',
+        options: [
+          { v: 'u0', label: 'Under ' + MIN_UNITS + ' units', small: 'Below the eligibility floor', hard: true },
+          { v: 'u1', label: MIN_UNITS + '–20 units', small: 'Small multifamily' },
+          { v: 'u2', label: '21–50 units', small: 'Mid-size project' },
+          { v: 'u3', label: '51–100 units', small: 'Large project' },
+          { v: 'u4', label: 'Over 100 units', small: 'Large or phased' }
+        ]
+      },
+      {
+        key: 'gfa',
+        title: "What's the gross floor area?",
+        sub: 'Use the total floor area on the architect\u2019s area schedule — that is the figure we quote from. It sets the fee estimate only and has no effect on your points.',
+        options: [
+          { v: 'g1', label: 'Up to 10,000 ft²', small: 'Flat-fee band', gfa: 10000 },
+          { v: 'g2', label: '10,000–30,000 ft²', small: 'Estimated at 25,000 ft²', gfa: 25000 },
+          { v: 'g3', label: '30,000–75,000 ft²', small: 'Estimated at 60,000 ft²', gfa: 60000 },
+          { v: 'g4', label: '75,000–150,000 ft²', small: 'Estimated at 120,000 ft²', gfa: 120000 },
+          { v: 'g5', label: 'Over 150,000 ft²', small: 'Estimated at 200,000 ft²', gfa: 200000 }
+        ]
+      },
+      { key: 'improvement', title: 'What performance is the design targeting?', sub: '', dynamic: true },
+      {
+        key: 'model',
+        title: "What's the energy model status?",
+        sub: 'CMHC moved the reference to ' + CHANGE.to + ' on ' + CHANGE.date + '.',
+        options: [
+          { v: 'new', label: 'Modelled against 2020 codes', small: 'Current reference' },
+          { v: 'old', label: 'Modelled against ' + CHANGE.from, small: 'The previous reference', flag: 'old' },
+          { v: 'unsure', label: 'Modelled — basis unclear', small: "A model exists, we'd check what it was run against", flag: 'unsure' },
+          { v: 'none', label: 'No model yet', small: 'Nothing modelled so far', flag: 'none' }
+        ]
+      },
+      {
+        key: 'stage',
+        title: 'Where is the project today?',
+        sub: 'The later the stage, the fewer energy decisions are still open.',
+        options: [
+          { v: 'design', label: 'Early design', small: 'Concept or schematic', flag: 'design' },
+          { v: 'permit', label: 'Permit drawings', small: 'Design development / BP set' },
+          { v: 'construction', label: 'Under construction', small: 'Envelope and mechanical largely fixed', flag: 'construction' },
+          { v: 'built', label: 'Built', small: 'Existing building, documentation stage' }
+        ]
+      },
+      {
+        key: 'timing',
+        title: 'When does the CMHC application go in?',
+        sub: 'So we can tell you whether the timeline is comfortable.',
+        options: [
+          { v: 'w1', label: 'Within 30 days', small: 'Imminent', flag: 'rush' },
+          { v: 'w2', label: '1–3 months', small: 'Near term' },
+          { v: 'w3', label: '3–6 months', small: 'Comfortable runway' },
+          { v: 'w4', label: 'Just exploring', small: 'Evaluating the programme' }
+        ]
+      }
+    ];
+
+    function feeFor(gfa) {
+      if (!gfa || gfa <= FEE.flatTo) return FEE.flatFee;
+      var fee = FEE.flatFee, lower = FEE.flatTo;
+      for (var i = 0; i < FEE.bands.length; i++) {
+        var b = FEE.bands[i];
+        var upTo = b.upTo === null ? Infinity : b.upTo;
+        if (gfa <= lower) break;
+        fee += (Math.min(gfa, upTo) - lower) * b.perSqFt;
+        lower = upTo;
+      }
+      return Math.round(fee);
+    }
+    var money = function (n) { return '$' + n.toLocaleString('en-CA'); };
+    var num = function (n) { return n.toLocaleString('en-CA'); };
+
+    var state = { step: 0, answers: {} };
+    var $ = function (id) { return document.getElementById(id); };
+    var quizView = $('quizView'), resultView = $('resultView'), leadCard = $('leadCard');
+    var summary = '';
+
+    function optionsFor(q) {
+      return q.dynamic ? improvementOptions(state.answers.path) : q.options;
+    }
+    function subFor(q) {
+      if (!q.dynamic) return q.sub;
+      var p = PATHS[state.answers.path];
+      return p
+        ? 'Measured as % ' + p.basis + '. Each band below is one of CMHC’s own point thresholds.'
+        : 'We need the code path first — pick it on question 1 and these options become exact.';
+    }
+
+    function render() {
+      var q = QUESTIONS[state.step];
+      $('qTitle').textContent = q.title;
+      $('qSub').textContent = subFor(q);
+      $('stepLabel').textContent = 'Question ' + (state.step + 1) + ' of ' + QUESTIONS.length;
+      $('progressBar').style.width = (state.step / QUESTIONS.length * 100) + '%';
+      $('backBtn').disabled = state.step === 0;
+      var box = $('options');
+      box.innerHTML = '';
+      optionsFor(q).forEach(function (opt) {
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.setAttribute('role', 'radio');
+        var on = state.answers[q.key] === opt.v;
+        b.setAttribute('aria-checked', on ? 'true' : 'false');
+        b.className =
+          'flex min-h-[3.5rem] w-full items-start gap-3 rounded-lg border p-4 text-left transition-colors ' +
+          (on ? 'border-teal-600 bg-teal-50' : 'border-line bg-white hover:border-teal-600');
+        var dot = document.createElement('span');
+        dot.setAttribute('aria-hidden', 'true');
+        dot.className =
+          'mt-0.5 h-5 w-5 shrink-0 rounded-full border-2 ' +
+          (on ? 'border-teal-600 bg-teal-600 ring-2 ring-inset ring-white' : 'border-navy-200');
+        var txt = document.createElement('span');
+        var strong = document.createElement('span');
+        strong.className = 'block font-semibold text-navy-800';
+        strong.textContent = opt.label;
+        var small = document.createElement('span');
+        small.className = 'mt-0.5 block text-sm text-body';
+        small.textContent = opt.small;
+        txt.appendChild(strong); txt.appendChild(small);
+        b.appendChild(dot); b.appendChild(txt);
+        b.addEventListener('click', function () {
+          state.answers[q.key] = opt.v;
+          if (q.key === 'path') delete state.answers.improvement;
+          render();
+          $('nextBtn').focus();
+        });
+        box.appendChild(b);
+      });
+      $('nextBtn').disabled = !state.answers[q.key];
+      $('nextBtn').textContent = state.step === QUESTIONS.length - 1 ? 'See my estimate →' : 'Continue →';
+    }
+
+    function pick(key) {
+      var q = null;
+      for (var i = 0; i < QUESTIONS.length; i++) if (QUESTIONS[i].key === key) q = QUESTIONS[i];
+      var v = state.answers[key];
+      var opts = optionsFor(q);
+      for (var j = 0; j < opts.length; j++) if (opts[j].v === v) return opts[j];
+      return null;
+    }
+
+    function buildResult() {
+      var pathKey = state.answers.path;
+      var path = PATHS[pathKey] || null;
+      var imp = pick('improvement');
+      var units = pick('units');
+      var model = pick('model');
+      var stage = pick('stage');
+      var timing = pick('timing');
+      var gfaOpt = pick('gfa');
+      var gfa = gfaOpt ? gfaOpt.gfa : 25000;
+
+      var points = imp && typeof imp.points === 'number' ? imp.points : null;
+      var hardStop = !!(units && units.hard);
+      var flags = [];
+
+      if (hardStop) {
+        flags.push({ kind: 'bad', tag: 'Not eligible', text: 'Under ' + MIN_UNITS + ' residential units, the project does not meet CMHC’s MLI Select minimum. Retirement homes are the exception, at 50 units or beds. Worth a short call before spending anything on modelling.' });
+      }
+      if (!path) {
+        flags.push({ kind: 'warn', tag: 'Code path', text: 'Until we know whether this is a Part 3 (NECB 2020) or Part 9 (NBC 2020) file, the thresholds are different and no estimate is meaningful. It is the first thing we establish.' });
+      }
+      if (points === null && path && !hardStop) {
+        flags.push({ kind: 'warn', tag: 'No target', text: 'Without a performance target there is nothing to score. Setting one early is what makes the points achievable at a sensible cost.' });
+      }
+      if (points === 0 && path && !hardStop) {
+        flags.push({ kind: 'warn', tag: '0 points', text: 'At this level of improvement the project earns no MLI Select energy points. The first threshold is ' + path.tiers[path.tiers.length - 1].minImprovement + '% ' + path.basis + ' — often reachable with envelope and mechanical choices rather than a redesign.' });
+      }
+      if (points !== null && points > 0 && path && !hardStop) {
+        var sorted = path.tiers.slice().sort(function (a, b) { return a.minImprovement - b.minImprovement; });
+        var next = null;
+        for (var i = 0; i < sorted.length; i++) if (sorted[i].points > points && !next) next = sorted[i];
+        if (next) {
+          flags.push({ kind: 'good', tag: 'Next tier', text: 'The next tier is ' + next.points + ' points at ' + next.minImprovement + '% ' + path.basis + '. Whether that gap is worth closing is a cost question the model can answer directly.' });
+        } else {
+          flags.push({ kind: 'good', tag: 'Top tier', text: 'This is the highest energy-points tier CMHC offers. The model’s job is to document it defensibly.' });
+        }
+      }
+      if (model && model.flag === 'old') {
+        flags.push({ kind: 'warn', tag: 'Model basis', text: 'A model built against ' + CHANGE.from + ' is measured against a reference CMHC no longer uses for new files. Whether yours has to be re-run is CMHC’s call — confirm it with your specialist rather than assuming either way.' });
+      }
+      if (model && model.flag === 'unsure') {
+        flags.push({ kind: 'warn', tag: 'Model basis', text: 'Confirming which reference the existing model was run against is step one, and usually takes a few minutes with the model file.' });
+      }
+      if (model && model.flag === 'none') {
+        flags.push({ kind: 'warn', tag: 'No model', text: 'Normal at this stage — but the points above stay an estimate until a model exists.' });
+      }
+      if (stage && stage.flag === 'design') {
+        flags.push({ kind: 'good', tag: 'Good timing', text: 'Early design is the cheapest point to buy energy points — nearly every lever is still open.' });
+      }
+      if (stage && stage.flag === 'construction') {
+        flags.push({ kind: 'warn', tag: 'Late stage', text: 'Under construction, most energy decisions are fixed. What is left is documenting the envelope and mechanical performance accurately, which can still move the result.' });
+      }
+      if (timing && timing.flag === 'rush' && model && model.v !== 'new') {
+        flags.push({ kind: 'warn', tag: 'Tight', text: 'A submission inside 30 days without a current-reference model is tight. Standard turnaround is ' + TURNAROUND + ', so send the drawings this week rather than next.' });
+      }
+
+      return { path: path, points: points, hardStop: hardStop, flags: flags, gfa: gfa, gfaOpt: gfaOpt, fee: feeFor(gfa), imp: imp };
+    }
+
+    function showResult() {
+      var r = buildResult();
+      quizView.hidden = true;
+      resultView.hidden = false;
+      leadCard.hidden = false;
+      $('panelTitle').textContent = 'Your estimate';
+      $('stepLabel').textContent = 'Complete';
+      $('progressBar').style.width = '100%';
+
+      if (r.hardStop) {
+        $('pointsNum').textContent = '—';
+        $('pointsLabel').textContent = 'Not eligible as described';
+        $('verdictSub').textContent = 'The unit count is the blocker. There may still be a route — phasing, unit mix, or a different CMHC product — and that is a five-minute conversation rather than a modelling job.';
+      } else if (r.points === null) {
+        $('pointsNum').textContent = '—';
+        $('pointsLabel').textContent = 'Not enough to estimate yet';
+        $('verdictSub').textContent = 'We need either the code path or a performance target before the points can be estimated. Both are quick to settle once we see the drawings.';
+      } else {
+        $('pointsNum').textContent = r.points;
+        $('pointsLabel').textContent = r.points === 0 ? 'MLI Select energy points' : 'MLI Select energy points, estimated';
+        $('verdictSub').textContent = r.points === 0
+          ? 'As described, the project earns no energy points. That is a design question, not a dead end — and it is far cheaper to answer now than at submission.'
+          : 'These are energy points only. MLI Select totals them with affordability and accessibility points, and the 50 / 70 / 100-point tiers are what set the insurance terms.';
+      }
+
+      var wrap = $('tierTableWrap'), rows = $('tierRows');
+      if (r.path) {
+        wrap.hidden = false;
+        $('tierCaption').textContent = 'CMHC energy points — ' + r.path.label;
+        rows.innerHTML = '';
+        r.path.tiers.slice().sort(function (a, b) { return a.minImprovement - b.minImprovement; }).forEach(function (t) {
+          var tr = document.createElement('tr');
+          var hit = r.points === t.points;
+          tr.className = 'border-b border-line ' + (hit ? 'bg-teal-50 font-semibold text-navy-800' : '');
+          var td1 = document.createElement('td');
+          td1.className = 'py-2.5 pr-4';
+          td1.textContent = t.points + (hit ? '  ← your estimate' : '');
+          var td2 = document.createElement('td');
+          td2.className = 'py-2.5';
+          td2.textContent = t.minImprovement + '% ' + r.path.basis;
+          tr.appendChild(td1); tr.appendChild(td2);
+          rows.appendChild(tr);
+        });
+      } else {
+        wrap.hidden = true;
+      }
+
+      var fl = $('flagList');
+      fl.innerHTML = '';
+      r.flags.forEach(function (f) {
+        var li = document.createElement('li');
+        var tone = f.kind === 'bad' ? 'border-red-200 bg-red-50' : (f.kind === 'good' ? 'border-teal-200 bg-teal-50' : 'border-navy-200 bg-navy-50');
+        li.className = 'rounded-lg border p-4 text-[0.9375rem] ' + tone;
+        var b = document.createElement('strong');
+        b.className = 'mr-2 font-semibold text-navy-800';
+        b.textContent = f.tag + ' —';
+        var s = document.createElement('span');
+        s.textContent = f.text;
+        li.appendChild(b); li.appendChild(s);
+        fl.appendChild(li);
+      });
+
+      $('feeLine').textContent = money(r.fee) + ' — first report free';
+      $('feeNote').textContent =
+        'Estimated for about ' + num(r.gfa) + ' ft² of gross floor area (CAD, taxes extra, one revision included). ' +
+        'Because the first MLI Select report is free — one per company — your cost to confirm this estimate is nothing. ' +
+        'The final fee is set once we have seen the drawings.';
+
+      var lines = [];
+      lines.push('MLI SELECT ENERGY PRE-CHECK');
+      lines.push('Estimated energy points: ' + (r.points === null ? 'not enough information' : r.points));
+      lines.push('Code path: ' + (r.path ? r.path.label : 'not yet established'));
+      lines.push('');
+      QUESTIONS.forEach(function (q) {
+        var o = pick(q.key);
+        lines.push('- ' + q.title + '  ' + (o ? o.label : '—'));
+      });
+      lines.push('');
+      lines.push('Estimated fee: ' + money(r.fee) + ' for about ' + num(r.gfa) + ' ft² GFA (first report free, one per company).');
+      lines.push('');
+      r.flags.forEach(function (f) { lines.push('[' + f.tag + '] ' + f.text); });
+      summary = lines.join('\n');
+      $('summaryField').value = summary;
+
+      resultView.focus();
+      resultView.scrollIntoView({ block: 'start', behavior: 'smooth' });
+    }
+
+    $('nextBtn').addEventListener('click', function () {
+      if (!state.answers[QUESTIONS[state.step].key]) return;
+      if (state.step < QUESTIONS.length - 1) { state.step++; render(); }
+      else showResult();
+    });
+    $('backBtn').addEventListener('click', function () {
+      if (state.step > 0) { state.step--; render(); }
+    });
+    $('restartBtn').addEventListener('click', function () {
+      state = { step: 0, answers: {} };
+      resultView.hidden = true;
+      leadCard.hidden = true;
+      quizView.hidden = false;
+      $('panelTitle').textContent = 'Energy pre-check';
+      render();
+      document.getElementById('quizView').scrollIntoView({ block: 'center', behavior: 'smooth' });
+    });
+    $('toFormBtn').addEventListener('click', function () {
+      $('leadCard').scrollIntoView({ block: 'start', behavior: 'smooth' });
+      $('pName').focus();
+    });
+    $('copyBtn').addEventListener('click', function () {
+      var msg = $('copiedMsg');
+      function done() { msg.hidden = false; setTimeout(function () { msg.hidden = true; }, 2500); }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(summary).then(done, done);
+      } else { done(); }
+    });
+
+    var leadForm = $('leadForm');
+    leadForm.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      var btn = $('leadSubmit'), err = $('leadError');
+      err.hidden = true;
+      btn.disabled = true;
+      btn.textContent = 'Sending…';
+      try {
+        var res = await fetch(leadForm.action, {
+          method: 'POST',
+          body: new FormData(leadForm),
+          headers: { Accept: 'application/json' }
+        });
+        if (!res.ok) throw new Error(String(res.status));
+        leadForm.hidden = true;
+        var ok = $('leadSuccess');
+        ok.hidden = false;
+        ok.focus();
+      } catch (_) {
+        err.hidden = false;
+        btn.disabled = false;
+        btn.textContent = 'Send my pre-check';
+      }
+    });
+
+    render();
+  </script>
+</Base>
