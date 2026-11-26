@@ -3,7 +3,7 @@ import Base from '../../layouts/Base.astro';
 import PageHero from '../../components/PageHero.astro';
 import { company } from '../../data/site';
 
-const effective = 'November 20, 2026';
+const effective = 'November 26, 2026';
 const email = company.email;
 ---
 
@@ -14,7 +14,7 @@ const email = company.email;
   <PageHero
     eyebrow="DocScan"
     title="Privacy policy"
-    lede="DocScan is a document scanner that works entirely on your device. In short: we do not collect, store or share any personal data."
+    lede="DocScan is a document scanner for Android and iPhone that works entirely on your device. In short: we do not collect, store or share any personal data."
     crumbs={[{ href: '/', label: 'Home' }]}
   />
 
@@ -26,7 +26,8 @@ const email = company.email;
 
       <h3>What we collect</h3>
       <p>
-        Nothing. DocScan has no internet permission, no user accounts, no
+        Nothing. DocScan never connects to the internet (on Android it does not
+        even have the internet permission). It has no user accounts, no
         advertising and no analytics or tracking tools. We, {company.name}, never
         receive your documents, photos, recognized text or any information about
         how you use the app.
@@ -44,11 +45,13 @@ const email = company.email;
       <h3>Permissions</h3>
       <ul>
         <li><strong>Camera</strong>: to scan documents and QR codes. Images are processed on the device.</li>
-        <li><strong>Fingerprint / biometrics</strong>: only if you turn on the app lock or locked folders. The check is done by Android; the app never sees your fingerprint.</li>
+        <li><strong>Photos</strong> (iPhone): to pick the pictures you want to turn into documents, and to save scans to the "DocScan" album when you ask for it. The app sees only the pictures you pick.</li>
+        <li><strong>Fingerprint, Face ID / biometrics</strong>: only if you turn on the app lock or locked folders. The check is done by Android or iOS; the app never sees your fingerprint or face.</li>
         <li><strong>Storage</strong> (older Android versions only): to import and save files you choose.</li>
       </ul>
 
-      <h3>Services provided by Google on your device</h3>
+      <h3>Services provided by Google or Apple on your device</h3>
+      <p>On Android:</p>
       <ul>
         <li>
           <strong>Document scanner</strong>: the automatic page scanner is
@@ -63,12 +66,43 @@ const email = company.email;
           policy apply.
         </li>
       </ul>
+      <p>On iPhone:</p>
+      <ul>
+        <li>
+          <strong>Document scanner and ID photos</strong>: the automatic page
+          scanner and the person detection for ID photos are provided by iOS
+          (Apple's VisionKit and Vision) and run on the device.
+        </li>
+        <li>
+          <strong>Optional contributions</strong>: if you choose to contribute,
+          the payment is handled entirely by the App Store. The net proceeds are
+          used in the same way. We receive no payment card details; Apple's
+          terms and <a href="https://www.apple.com/legal/privacy/">privacy policy</a>{' '}apply.
+        </li>
+      </ul>
 
       <h3>Backups</h3>
       <p>
-        Android's automatic cloud backup is turned off for DocScan. The app's own
-        backup creates a file only when you ask for it, and you choose where to
-        keep it.
+        Android's automatic cloud backup stays off for DocScan: nothing is sent
+        to Google's backup servers. When you move to a new phone directly (by
+        cable or Wi-Fi, "copy apps and data"), your documents and settings are
+        copied to the new phone.
+      </p>
+      <p>
+        The app's own backup creates a file only when you ask for it, and you
+        choose where to keep it. If you turn on <em>Automatic backup</em>,
+        DocScan keeps one backup file up to date in the place you chose, for
+        example Google Drive. DocScan itself still never connects to the
+        internet: the app that owns that place (such as Google Drive) stores and
+        uploads the file, under that service's terms. You can turn it off at any
+        time in Settings.
+      </p>
+      <p>
+        On iPhone, DocScan keeps its documents out of your iPhone's iCloud or
+        computer backup. If you turn on <em>Include documents in iPhone backup</em>{' '}in
+        Settings, iOS includes them when it backs up your iPhone; Apple then
+        stores that backup under its own terms. You can turn it off again at any
+        time. <em>Automatic backup</em> is available on Android only.
       </p>
 
       <h3>Children</h3>
