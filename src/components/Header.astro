@@ -10,6 +10,7 @@ const nav = [
   { href: '/pricing/', label: 'Pricing' },
   { href: '/regions/', label: 'Where we work' },
   { href: '/projects/', label: 'Projects' },
+  { href: '/reviews/', label: 'Reviews' },
   { href: '/about/', label: 'About' },
 ];
 ---
@@ -37,7 +38,7 @@ const nav = [
             href={item.href}
             aria-current={isActive(item.href) ? 'page' : undefined}
             class:list={[
-              'rounded-md px-3 py-2 text-[0.9375rem] font-medium transition-colors',
+              'whitespace-nowrap rounded-md px-2.5 py-2 text-[0.9375rem] font-medium transition-colors',
               isActive(item.href)
                 ? 'text-teal-600'
                 : 'text-navy-700 hover:bg-navy-50',
@@ -52,7 +53,7 @@ const nav = [
     <div class="flex items-center gap-3">
       <a
         href={company.phoneHref}
-        class="hidden text-[0.9375rem] font-semibold text-navy-800 hover:text-teal-600 md:inline"
+        class="hidden whitespace-nowrap text-[0.9375rem] font-semibold text-navy-800 hover:text-teal-600 md:inline"
       >
         {company.phone}
       </a>
