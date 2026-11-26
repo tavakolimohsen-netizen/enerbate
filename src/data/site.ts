@@ -362,7 +362,7 @@ export const differentiators = [
   },
   {
     title: 'Reasonable pricing',
-    body: 'Costed for the size of the project rather than a flat consultancy rate, which makes small Part 9 work viable.',
+    body: 'Costed for the size of the project rather than a flat consultancy rate, and the whole schedule is published — you can price a project before you call us.',
   },
   {
     title: 'Direct expert contact',
