@@ -454,6 +454,25 @@ export const feeSchedules: FeeSchedule[] = [
     ],
   },
   {
+    key: 'bcbp',
+    name: 'BC Building Permit',
+    blurb: 'BC Building Code or Vancouver Building By-law permit submission.',
+    flatTo: 10_000,
+    flatFee: 1_300,
+    rateDecimals: 4,
+    bands: [
+      { upTo: 30_000, perSqFt: 0.0585 },
+      { upTo: 75_000, perSqFt: 0.0442 },
+      { upTo: 150_000, perSqFt: 0.0390 },
+      { upTo: Infinity, perSqFt: 0.0338 },
+    ],
+    scope: [
+      'Reference and proposed energy models',
+      'Energy compliance report for the building permit submission',
+      'BC Energy Step Code compliance forms (BCBC or VBBL, as the authority requires)',
+    ],
+  },
+  {
     key: 'mli',
     name: 'CMHC MLI Select',
     blurb: 'Energy points evidence for a CMHC MLI Select application.',
