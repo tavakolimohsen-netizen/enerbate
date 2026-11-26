@@ -1,0 +1,268 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import Testimonial from '../components/Testimonial.astro';
+import { company, services, testimonials } from '../data/site';
+
+const steps = [
+  'It goes straight to our inbox — not onto the site.',
+  'We send you the exact wording we would like to publish.',
+  'Nothing appears until you reply yes.',
+  'You can stay anonymous: role and sector only, or nothing at all.',
+];
+---
+
+<Base
+  title="Client reviews"
+  description={`What clients say about working with ${company.name} — and a form to leave your own review. Nothing is published without the reviewer's approval.`}
+>
+  <PageHero
+    eyebrow="Client feedback"
+    title="What clients say"
+    lede="Quotes are printed as the client wrote them, with named attribution only where the client has agreed to it."
+    crumbs={[{ href: '/', label: 'Home' }]}
+  />
+
+  <section class="wrap grid gap-14 py-16 md:py-20 lg:grid-cols-[minmax(0,1fr)_20rem] lg:gap-16">
+    <div class="max-w-2xl">
+      {
+        testimonials.length > 0 ? (
+          <ul class="space-y-8">
+            {testimonials.map((t) => (
+              <li>
+                <Testimonial testimonial={t} />
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p class="text-[1.0625rem] leading-relaxed">
+            No reviews are published yet. If you have worked with us, the form below
+            is the place to add the first one.
+          </p>
+        )
+      }
+
+      <!-- ================= REVIEW FORM ================= -->
+      <div id="leave" class="mt-16 scroll-mt-28 border-t border-line pt-14">
+        <h2 class="text-2xl md:text-3xl">Worked with us? Leave a review</h2>
+        <p class="mt-3 text-[1.0625rem] leading-relaxed">
+          A few sentences is plenty. Tell us what the project was and how the work
+          went &mdash; including anything that did not go well, which is more useful
+          to us than praise.
+        </p>
+
+        <!-- Submits over fetch so the visitor stays on enerbate.ca instead of
+             being redirected to formspree.io. Without JavaScript the form still
+             posts normally to the same endpoint, so it never stops working. -->
+        <form
+          id="reviewForm"
+          action="https://formspree.io/f/xjyvaqek"
+          method="POST"
+          class="mt-8 space-y-6"
+        >
+          <!-- Honeypot: real people never see or fill this. -->
+          <div class="absolute h-px w-px overflow-hidden" aria-hidden="true">
+            <label for="site">Leave this field empty</label>
+            <input id="site" name="_gotcha" type="text" tabindex="-1" autocomplete="off" />
+          </div>
+          <input type="hidden" name="_subject" value="New review submitted on enerbate.ca" />
+
+          <div class="grid gap-6 sm:grid-cols-2">
+            <div>
+              <label for="rname" class="block text-sm font-semibold text-navy-800">
+                Your name
+              </label>
+              <input
+                id="rname" name="name" type="text" required autocomplete="name"
+                class="mt-2 h-11 w-full rounded-lg border border-navy-200 px-3.5 text-[0.9375rem] focus:border-teal-600"
+              />
+            </div>
+            <div>
+              <label for="remail" class="block text-sm font-semibold text-navy-800">
+                Email
+              </label>
+              <input
+                id="remail" name="email" type="email" required autocomplete="email"
+                aria-describedby="remailHelp"
+                class="mt-2 h-11 w-full rounded-lg border border-navy-200 px-3.5 text-[0.9375rem] focus:border-teal-600"
+              />
+              <p id="remailHelp" class="mt-1.5 text-sm text-body">
+                So we can send you the wording before publishing.
+              </p>
+            </div>
+          </div>
+
+          <div class="grid gap-6 sm:grid-cols-2">
+            <div>
+              <label for="rrole" class="block text-sm font-semibold text-navy-800">
+                Role <span class="font-normal text-body">(optional)</span>
+              </label>
+              <input
+                id="rrole" name="role" type="text" autocomplete="organization-title"
+                placeholder="Founder, Project Manager&hellip;"
+                class="mt-2 h-11 w-full rounded-lg border border-navy-200 px-3.5 text-[0.9375rem] focus:border-teal-600"
+              />
+            </div>
+            <div>
+              <label for="rcompany" class="block text-sm font-semibold text-navy-800">
+                Company <span class="font-normal text-body">(optional)</span>
+              </label>
+              <input
+                id="rcompany" name="company" type="text" autocomplete="organization"
+                class="mt-2 h-11 w-full rounded-lg border border-navy-200 px-3.5 text-[0.9375rem] focus:border-teal-600"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label for="rservice" class="block text-sm font-semibold text-navy-800">
+              What did we work on? <span class="font-normal text-body">(optional)</span>
+            </label>
+            <select
+              id="rservice" name="service"
+              class="mt-2 h-11 w-full rounded-lg border border-navy-200 bg-white px-3 text-[0.9375rem] focus:border-teal-600"
+            >
+              <option value="">Select a service</option>
+              {services.map((s) => <option value={s.title}>{s.title}</option>)}
+              <option value="CMHC MLI Select">CMHC MLI Select</option>
+              <option value="Several of the above">Several of the above</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="rreview" class="block text-sm font-semibold text-navy-800">
+              Your review
+            </label>
+            <textarea
+              id="rreview" name="review" rows="7" required maxlength="1200"
+              class="mt-2 w-full rounded-lg border border-navy-200 p-3.5 text-[0.9375rem] focus:border-teal-600"
+            ></textarea>
+          </div>
+
+          <fieldset>
+            <legend class="text-sm font-semibold text-navy-800">
+              If we publish it, how should it be attributed?
+            </legend>
+            <div class="mt-3 space-y-2.5">
+              <label class="flex items-start gap-3 text-[0.9375rem]">
+                <input
+                  type="radio" name="attribution" value="Name and company" required
+                  class="mt-1 h-4 w-4 shrink-0 accent-teal-600"
+                />
+                <span>With my name and company</span>
+              </label>
+              <label class="flex items-start gap-3 text-[0.9375rem]">
+                <input
+                  type="radio" name="attribution" value="Role and sector only"
+                  class="mt-1 h-4 w-4 shrink-0 accent-teal-600"
+                />
+                <span>
+                  Without my name &mdash; role and sector only
+                  <span class="block text-sm text-body">
+                    For example &ldquo;Founder &mdash; rental developer, Ontario&rdquo;.
+                  </span>
+                </span>
+              </label>
+              <label class="flex items-start gap-3 text-[0.9375rem]">
+                <input
+                  type="radio" name="attribution" value="Do not publish — private feedback"
+                  class="mt-1 h-4 w-4 shrink-0 accent-teal-600"
+                />
+                <span>
+                  Do not publish it
+                  <span class="block text-sm text-body">
+                    Private feedback for the team.
+                  </span>
+                </span>
+              </label>
+            </div>
+          </fieldset>
+
+          <button id="reviewSubmit" type="submit" class="btn btn-primary w-full sm:w-auto">
+            Send review
+          </button>
+
+          <p id="reviewError" hidden role="alert"
+             class="rounded-lg border border-red-200 bg-red-50 p-4 text-[0.9375rem] text-red-800">
+            Something went wrong sending that. Please email{' '}
+            <a class="font-semibold underline" href={`mailto:${company.email}`}>{company.email}</a>{' '}
+            instead.
+          </p>
+        </form>
+
+        <div id="reviewSuccess" hidden tabindex="-1"
+             class="mt-8 rounded-xl border border-teal-200 bg-teal-50 p-7">
+          <h3 class="text-xl">Thank you &mdash; that means a lot</h3>
+          <p class="mt-3 text-[1.0625rem] leading-relaxed">
+            We have your review. If you said we may publish it, we will send you the
+            exact wording first and wait for your reply before anything goes on the site.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <aside class="lg:sticky lg:top-24 lg:self-start">
+      <div class="card p-6">
+        <h2 class="text-base">What happens to what you send</h2>
+        <ol class="mt-4 space-y-3.5 text-[0.9375rem] leading-relaxed">
+          {
+            steps.map((s, i) => (
+              <li class="flex gap-3">
+                <span
+                  class="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-navy-50 text-[0.8125rem] font-semibold text-navy-700"
+                  aria-hidden="true"
+                >
+                  {i + 1}
+                </span>
+                <span>{s}</span>
+              </li>
+            ))
+          }
+        </ol>
+        <p class="mt-6 border-t border-line pt-5 text-[0.9375rem]">
+          Questions first? Email{' '}
+          <a class="link-teal" href={`mailto:${company.email}`}>{company.email}</a>{' '}
+          or call{' '}
+          <a class="link-teal" href={company.phoneHref}>{company.phone}</a>.
+        </p>
+      </div>
+    </aside>
+  </section>
+
+  <script>
+    const form = document.getElementById('reviewForm') as HTMLFormElement | null;
+    const btn = document.getElementById('reviewSubmit') as HTMLButtonElement | null;
+    const ok = document.getElementById('reviewSuccess');
+    const err = document.getElementById('reviewError');
+
+    form?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (err) err.hidden = true;
+      if (btn) {
+        btn.disabled = true;
+        btn.textContent = 'Sending…';
+      }
+
+      try {
+        const res = await fetch(form.action, {
+          method: 'POST',
+          body: new FormData(form),
+          headers: { Accept: 'application/json' },
+        });
+        if (!res.ok) throw new Error(String(res.status));
+        form.hidden = true;
+        if (ok) {
+          ok.hidden = false;
+          (ok as HTMLElement).focus();
+          ok.scrollIntoView({ block: 'center', behavior: 'smooth' });
+        }
+      } catch {
+        if (err) err.hidden = false;
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = 'Send review';
+        }
+      }
+    });
+  </script>
+</Base>
