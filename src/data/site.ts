@@ -351,6 +351,53 @@ export const projects: Project[] = [
   },
 ];
 
+export type Testimonial = {
+  /** Verbatim, except for the capitalisation of our own name. */
+  quote: string;
+  /** Role of the person who wrote it. */
+  role: string;
+  /** What kind of client, and where — stands in for a company name when we do not have permission to print one. */
+  client: string;
+  /** The piece of work the quote is about. */
+  context: string;
+  /** Optional headline result. Keep it to one significant figure after the point. */
+  result?: string;
+  /** Qualifier printed under any result, so the number is never read as metered. */
+  resultNote?: string;
+  /** Service slugs this quote is shown on. Empty means home page only. */
+  services: string[];
+  /** Set true for the one quote the home page leads with. */
+  featured?: boolean;
+};
+
+/**
+ * Client quotes. Supplied by the client in writing; printed unedited apart
+ * from the capitalisation of EnerBate's own name. Named attribution is used
+ * only where the client has given permission for it — otherwise role and
+ * sector, which is weaker but honest.
+ */
+export const testimonials: Testimonial[] = [
+  {
+    quote:
+      'It has been an absolute pleasure working with you and the EnerBate team. You are responsive, flexible and provide outstanding value!',
+    role: 'Founder',
+    client: 'Purpose-built rental developer, Ontario',
+    context: 'CMHC MLI Select energy modelling',
+    result: '29.5% modelled energy savings against NECB 2020',
+    resultNote: 'Modelled design-stage result. Results vary by project.',
+    services: ['whole-building-energy-modelling', 'compliance-reporting'],
+    featured: true,
+  },
+];
+
+/** The quotes to show on a given service page. */
+export function testimonialsFor(slug: string): Testimonial[] {
+  return testimonials.filter((t) => t.services.includes(slug));
+}
+
+/** The quote the home page leads with, if there is one. */
+export const featuredTestimonial = testimonials.find((t) => t.featured);
+
 export const differentiators = [
   {
     title: 'Fast turnaround',
