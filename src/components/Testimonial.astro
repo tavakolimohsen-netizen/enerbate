@@ -1,0 +1,87 @@
+---
+import type { Testimonial } from '../data/site';
+
+interface Props {
+  testimonial: Testimonial;
+  /** 'dark' sits inside the navy panel on the home page; 'light' sits in page flow. */
+  variant?: 'dark' | 'light';
+  class?: string;
+}
+
+const { testimonial: t, variant = 'light', class: cls = '' } = Astro.props;
+const dark = variant === 'dark';
+---
+
+<figure
+  class:list={[
+    dark
+      ? 'border-t border-white/15 pt-12'
+      : 'rounded-xl border border-line bg-surface p-7 md:p-8',
+    cls,
+  ]}
+>
+  <div
+    class:list={[
+      dark && t.result
+        ? 'grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_18rem] lg:gap-14'
+        : '',
+    ]}
+  >
+    <div class="min-w-0">
+      <svg
+        width="32" height="24" viewBox="0 0 34 26" fill="currentColor"
+        aria-hidden="true"
+        class:list={[dark ? 'text-spark-300' : 'text-teal-400']}
+      >
+        <path
+          d="M0 26V14.3C0 9.6 1.1 6 3.3 3.6 5.5 1.2 8.7 0 12.9 0v5.3c-2 0-3.5.5-4.5 1.6-1 1-1.5 2.6-1.5 4.6h5.4V26H0zm20.6 0V14.3c0-4.7 1.1-8.3 3.3-10.7C26.1 1.2 29.3 0 33.5 0v5.3c-2 0-3.5.5-4.5 1.6-1 1-1.5 2.6-1.5 4.6h5.4V26H20.6z"
+        />
+      </svg>
+
+      <blockquote
+        class:list={[
+          'mt-4 text-pretty',
+          dark
+            ? 'text-xl leading-relaxed text-white md:text-2xl md:leading-[1.5]'
+            : 'text-lg leading-relaxed text-navy-800',
+        ]}
+      >
+        <p>{t.quote}</p>
+      </blockquote>
+
+      <figcaption class="mt-6 text-[0.9375rem] leading-relaxed">
+        <span class:list={['font-semibold', dark ? 'text-white' : 'text-navy-800']}>
+          {t.role}
+        </span>
+        <span class:list={[dark ? 'text-navy-200' : 'text-body']}>
+          {' '}&mdash; {t.client}
+        </span>
+        <span class:list={['block', dark ? 'text-navy-200' : 'text-body']}>
+          {t.context}
+        </span>
+      </figcaption>
+    </div>
+
+    {
+      t.result &&
+        (dark ? (
+          <div class="rounded-xl border border-white/15 bg-white/[0.06] p-6">
+            <p class="text-xs font-semibold uppercase tracking-[0.14em] text-spark-300">
+              Result on that project
+            </p>
+            <p class="mt-3 text-lg leading-snug text-white">{t.result}</p>
+            {t.resultNote && (
+              <p class="mt-3 text-[0.8125rem] leading-relaxed text-navy-200">{t.resultNote}</p>
+            )}
+          </div>
+        ) : (
+          <div class="mt-6 border-t border-line pt-5">
+            <p class="text-[0.9375rem] font-semibold text-navy-800">{t.result}</p>
+            {t.resultNote && (
+              <p class="mt-1.5 text-[0.8125rem] leading-relaxed text-body">{t.resultNote}</p>
+            )}
+          </div>
+        ))
+    }
+  </div>
+</figure>
