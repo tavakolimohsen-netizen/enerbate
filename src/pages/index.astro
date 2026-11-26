@@ -1,5 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
+import Testimonial from '../components/Testimonial.astro';
 import {
   company,
   services,
@@ -7,6 +8,7 @@ import {
   projects,
   differentiators,
   projectTypes,
+  featuredTestimonial,
 } from '../data/site';
 
 const stats = [
@@ -225,6 +227,8 @@ const codeBadges = [
           ))
         }
       </ul>
+
+      {featuredTestimonial && <Testimonial testimonial={featuredTestimonial} variant="dark" class="mt-16" />}
     </div>
   </section>
 
