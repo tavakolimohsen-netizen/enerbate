@@ -244,7 +244,7 @@ const codeBadges = [
 
     <ul class="mt-12 grid gap-6 md:grid-cols-3">
       {
-        projects.map((p) => (
+        projects.slice(0, 3).map((p) => (
           <li class="card group overflow-hidden">
             <div class="flex aspect-[4/3] items-center justify-center overflow-hidden bg-navy-50">
               <img
