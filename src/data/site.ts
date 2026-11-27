@@ -301,12 +301,65 @@ export type Project = {
   name: string;
   location: string;
   type: string;
+  /** Year the work was delivered. Omit for older work with no firm date. */
+  year?: string;
   scope: string[];
   blurb: string;
+  /** Headline modelled results. Always print resultNote alongside them. */
+  results?: string[];
+  resultNote?: string;
   images: { src: string; alt: string }[];
 };
 
 export const projects: Project[] = [
+  {
+    slug: 'purpose-built-rental-welland',
+    name: '95-unit purpose-built rental',
+    location: 'Welland, Ontario',
+    type: 'Part 3 \u2014 Multi-family rental',
+    year: '2026',
+    scope: [
+      'Reference and proposed models to NECB 2020',
+      'CMHC MLI Select energy submission',
+      'Property Energy Analysis report',
+      'CMHC attestation form',
+    ],
+    blurb:
+      'Six storeys and 95 suites over 76,000 ft\u00b2. The proposed design drops the reference building\u2019s gas heating and central gas hot water in favour of in-suite heat pumps with energy recovery and in-suite electric storage heaters, with the corridors on a single dedicated make-up air unit.',
+    results: [
+      '28.2% below the NECB 2020 reference',
+      'CMHC MLI Select Level 1 (25\u201349%)',
+    ],
+    resultNote:
+      'Modelled design-stage result against the CMHC fuel-switching reference. Results vary by project.',
+    images: [
+      { src: '/images/projects/welland-model.webp', alt: 'Three-dimensional energy model of the six-storey Welland rental building, shown from the south-east' },
+    ],
+  },
+  {
+    slug: 'mixed-use-squamish',
+    name: '12-unit mixed-use building',
+    location: 'Squamish, British Columbia',
+    type: 'Part 3 \u2014 Mixed use',
+    year: '2026',
+    scope: [
+      'Whole-building energy modelling',
+      'Thermal bridging take-off and BETBG analysis',
+      'BC Energy Step Code compliance checklist',
+      'Building permit energy report',
+    ],
+    blurb:
+      'A four-storey wood-frame building with twelve strata homes over three retail units, filed under the Squamish building by-law: Step 3 for the residential portion, Step 2 for the commercial, and emissions level EL-4 for both.',
+    results: [
+      'TEUI 76 kWh/m\u00b2\u00b7yr \u2014 Step 3 residential limit 120',
+      'TEDI 29.7 kWh/m\u00b2\u00b7yr \u2014 limit 30',
+      'GHGI 0.8 kgCO\u2082e/m\u00b2\u00b7yr \u2014 EL-4 limit 1.8',
+    ],
+    resultNote: 'Modelled permit-stage results. Results vary by project.',
+    images: [
+      { src: '/images/projects/squamish-heatmap.webp', alt: 'Heat-loss map of the Squamish building\u2019s street elevation, colouring each surface by its U-value, with windows losing far more heat per square metre than walls or roof' },
+    ],
+  },
   {
     slug: 'gwasala-nakwaxdaxw-childcare-centre',
     name: "Gwa'sala-'Nakwaxda'xw Early Childcare Centre",
@@ -383,8 +436,9 @@ export const testimonials: Testimonial[] = [
     role: 'Founder',
     client: 'Purpose-built rental developer, Ontario',
     context: 'CMHC MLI Select energy modelling',
-    // Result figure removed pending the final model run — the 29.5% taken from
-    // the client's own card was an earlier revision. Restore once confirmed.
+    result: '28.2% below the NECB 2020 reference \u2014 CMHC MLI Select Level 1',
+    resultNote:
+      'Modelled design-stage result from the delivered report. Results vary by project.',
     services: ['whole-building-energy-modelling', 'compliance-reporting'],
     featured: true,
   },
