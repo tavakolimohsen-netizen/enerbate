@@ -383,8 +383,8 @@ export const testimonials: Testimonial[] = [
     role: 'Founder',
     client: 'Purpose-built rental developer, Ontario',
     context: 'CMHC MLI Select energy modelling',
-    result: '29.5% modelled energy savings against NECB 2020',
-    resultNote: 'Modelled design-stage result. Results vary by project.',
+    // Result figure removed pending the final model run — the 29.5% taken from
+    // the client's own card was an earlier revision. Restore once confirmed.
     services: ['whole-building-energy-modelling', 'compliance-reporting'],
     featured: true,
   },
